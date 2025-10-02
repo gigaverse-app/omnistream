@@ -1,0 +1,151 @@
+# Claude Code Instructions
+
+🤖 **Welcome to Omnistream!** This file is automatically read by Claude Code.
+
+## Quick Start
+
+This is a **TypeScript/Node.js multi-platform streaming middleware** for gigaverse.com.
+
+**Current Status**: ✅ Phase 1 Complete - Core application fully functional
+
+### What's Built
+- YouTube & Facebook streaming providers (OAuth, streams, chat)
+- RESTful API with Express (11 endpoints)
+- WebSocket chat server (real-time aggregation)
+- Rate limiting, auth, error handling
+- 28 unit tests passing
+- Complete documentation
+
+### What's Next
+- **Priority**: Increase test coverage from 24% to 80%
+- Add API route, middleware, service, and WebSocket tests
+- Then: Migrate to PostgreSQL, add Docker, CI/CD
+
+## Essential Files to Read
+
+**MUST READ FIRST**:
+1. `CLAUDE_INSTRUCTIONS.md` - All user instructions from initial build
+2. `DEVELOPMENT_PLAN.md` - Detailed roadmap and next steps
+3. `PROJECT_STATUS.md` - What's done, what's pending
+
+**Architecture & Standards**:
+4. `.clinerules` - Architecture principles (modular providers, interfaces)
+5. `README.md` - API documentation and usage
+
+**Context**:
+6. `BUILD_SUMMARY.md` - Complete build overview
+7. `PROJECT_INSTRUCTIONS.md` - Requirements checklist
+
+## Your Authority
+
+The user has granted **full authority** to:
+- ✅ Install packages (npm install)
+- ✅ Run commands (build, test, dev)
+- ✅ Commit code (git add, commit)
+- ✅ Push to remote (git push)
+- ✅ Create branches and PRs
+- ✅ Modify any file
+
+## Git Workflow
+
+**IMPORTANT**: Commit and push frequently!
+
+```bash
+# Commit at every milestone
+git add .
+git commit -m "feat: description"
+git push origin main
+
+# For features, use branches
+git checkout -b feature/test-coverage
+# ... make changes ...
+git commit -m "test: add API route tests"
+git push origin feature/test-coverage
+gh pr create
+```
+
+## Quick Commands
+
+```bash
+# Development
+npm run dev          # Start dev server with hot reload
+
+# Testing
+npm test             # Run unit tests
+npm run test:coverage # Run with coverage report
+npm run test:integration # Run Playwright tests
+
+# Build
+npm run build        # TypeScript compilation
+npm start           # Run production build
+
+# Quality
+npm run lint         # ESLint check
+npm run format       # Prettier format
+```
+
+## Architecture at a Glance
+
+```
+src/
+├── core/              # Interfaces, errors, services
+├── providers/         # YouTube, Facebook, TikTok, Instagram
+│   └── youtube/       # Each provider is independent
+├── api/               # Express routes & middleware
+├── database/          # In-memory (ready for PostgreSQL)
+├── websocket/         # Real-time chat server
+└── __tests__/         # Jest unit + Playwright integration
+```
+
+## Key Principles
+
+1. **Modular**: Each platform provider is completely independent
+2. **Interface-driven**: All providers implement `StreamProvider`
+3. **Graceful degradation**: Continue working if platforms fail
+4. **Type-safe**: TypeScript strict mode, no `any`
+5. **Tested**: Unit + integration tests required
+
+## Current Priority: Testing
+
+**Goal**: Increase coverage from 24% to 80%
+
+**What to test**:
+1. API routes (communities, auth, streams)
+2. Middleware (rate limiter, auth, error handler)
+3. Stream service (business logic)
+4. WebSocket server (chat aggregation)
+
+See `DEVELOPMENT_PLAN.md` Phase 2 for detailed test cases needed.
+
+## Platform Support
+
+| Platform  | Status |
+|-----------|--------|
+| YouTube   | ✅ Fully implemented |
+| Facebook  | ✅ Fully implemented |
+| TikTok    | ⚠️ Stub (requires API approval) |
+| Instagram | ❌ No official API |
+
+## Need Help?
+
+- **Architecture**: Read `.clinerules`
+- **What's done**: Read `PROJECT_STATUS.md`
+- **Next steps**: Read `DEVELOPMENT_PLAN.md`
+- **User intent**: Read `CLAUDE_INSTRUCTIONS.md`
+- **API docs**: Read `README.md`
+
+## Remember
+
+- ✅ Commit frequently (at every milestone)
+- ✅ Push to remote (don't lose work)
+- ✅ Write tests for new code
+- ✅ Maintain TypeScript strict mode
+- ✅ Document as you work
+- ✅ Update status files when completing tasks
+
+---
+
+**Project**: Omnistream Multi-Platform Streaming Middleware
+**Status**: Phase 1 Complete, Phase 2 Ready to Start
+**Last Updated**: October 2, 2025
+**Build**: ✅ Passing | **Tests**: ✅ 28/28 | **Coverage**: 24% → Target: 80%
