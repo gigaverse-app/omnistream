@@ -1,0 +1,74 @@
+/**
+ * Omnistream - Multi-platform Live Streaming Middleware
+ * Main server entry point
+ */
+
+import express from 'express';
+import cors from 'cors';
+import http from 'http';
+import { config } from './utils/config.js';
+import { logger } from './utils/logger.js';
+import { errorHandler } from './api/middleware/error-handler.js';
+import { rateLimit } from './api/middleware/rate-limiter.js';
+import { ChatServer } from './websocket/chat-server.js';
+
+// Import routes
+import communitiesRouter from './api/routes/communities.js';
+import authRouter from './api/routes/auth.js';
+import streamsRouter from './api/routes/streams.js';
+
+const app = express();
+const server = http.createServer(app);
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(rateLimit);
+
+// Health check endpoint
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// API routes
+app.use('/api/v1/communities', communitiesRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/streams', streamsRouter);
+
+// Error handler (must be last)
+app.use(errorHandler);
+
+// Initialize WebSocket chat server
+const chatServer = new ChatServer(server);
+
+// Start server
+server.listen(config.port, () => {
+  logger.info('Omnistream server started', {
+    port: config.port,
+    nodeEnv: config.nodeEnv,
+  });
+  console.log(`\n🚀 Omnistream is running on http://localhost:${config.port}`);
+  console.log(`📡 WebSocket chat: ws://localhost:${config.port}/ws/chat\n`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  chatServer.close();
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  chatServer.close();
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});

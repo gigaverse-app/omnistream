@@ -1,0 +1,85 @@
+# omnistream - Multi-platform Live Streaming Middleware
+
+## Project Overview
+TypeScript/Node.js middleware providing RESTful APIs to stream RTMP to YouTube, Facebook, TikTok, and Instagram simultaneously. Handles OAuth, scheduling, real-time chat, and message highlighting.
+
+## Architecture Principles
+- **Modular providers**: Each platform (YouTube, Facebook, TikTok, Instagram) is completely independent
+- **Abstract interfaces**: All providers implement `StreamProvider` interface from `src/core/interfaces.ts`
+- **Graceful degradation**: Features work on platforms that support them, fail gracefully on others
+- **Per-community OAuth**: Each community has separate OAuth tokens per platform
+
+## Key Files
+- `src/core/interfaces.ts` - Core type definitions and interfaces
+- `src/providers/youtube/` - YouTube implementation
+- `src/providers/facebook/` - Facebook implementation
+- `src/providers/tiktok/` - TikTok implementation
+- `src/providers/instagram/` - Instagram stub (no official API)
+- `src/api/` - RESTful API routes
+
+## Code Standards
+- **TypeScript strict mode**: All code must be fully typed
+- **Error handling**: Always use try-catch and return meaningful errors
+- **Testing**: Every provider must have unit tests (Jest) and integration tests (Playwright)
+- **Async/await**: Use async/await, never callbacks
+- **ESM modules**: Use import/export (not require)
+
+## Platform-Specific Notes
+
+### YouTube
+- Full API support for all features
+- Use YouTube Data API v3 + YouTube Live Streaming API
+- OAuth scopes: `youtube.force-ssl`, `youtube.readonly`
+
+### Facebook
+- Use Facebook Graph API
+- Live video endpoints available
+- Chat via Graph API Live Comments
+- OAuth scopes: `pages_manage_posts`, `pages_read_engagement`
+
+### TikTok
+- Requires LIVE Access API approval (not generally available)
+- Implement stub that returns "not supported" for unapproved features
+- Document approval process in README
+
+### Instagram
+- NO official live streaming API exists
+- Implement stub provider that returns "unsupported" for all methods
+- Document limitation clearly
+
+## API Design
+- RESTful endpoints under `/api/v1/`
+- Authentication via community API keys
+- WebSocket endpoint for real-time chat: `/ws/chat/:streamId`
+
+## Testing Requirements
+- **Unit tests**: Mock external API calls
+- **Integration tests**: Use Playwright with test OAuth credentials
+- Minimum 80% code coverage
+- All providers must have identical test structure
+
+## Environment Variables
+Use `.env` for secrets (never commit):
+- `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`
+- `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`
+- `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`
+- `DATABASE_URL` (for storing OAuth tokens)
+
+## Development Workflow
+1. Implement interface in provider class
+2. Write unit tests
+3. Write integration tests
+4. Update API routes
+5. Update documentation
+
+## Important Constraints
+- Never hardcode credentials
+- Always validate input parameters
+- Log errors but never expose sensitive data
+- Use rate limiting for external API calls
+- Cache OAuth tokens appropriately
+
+## Documentation
+- Every public method needs JSDoc comments
+- README must include API endpoint documentation
+- Document platform limitations clearly

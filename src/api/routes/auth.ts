@@ -1,0 +1,163 @@
+/**
+ * OAuth authentication routes
+ */
+
+import express, { Request, Response, NextFunction } from 'express';
+import { db } from '../../database/index.js';
+import { providerRegistry } from '../../providers/index.js';
+import { Platform } from '../../core/interfaces.js';
+import { ValidationError } from '../../core/errors.js';
+import { config } from '../../utils/config.js';
+import { logger } from '../../utils/logger.js';
+
+const router = express.Router();
+
+/**
+ * GET /api/v1/auth/:platform/authorize
+ * Get OAuth authorization URL
+ */
+router.get(
+  '/:platform/authorize',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const platform = req.params.platform as Platform;
+      const communityId = req.query.communityId as string;
+
+      if (!communityId) {
+        throw new ValidationError('communityId query parameter is required');
+      }
+
+      // Verify community exists
+      await db.getCommunityById(communityId);
+
+      const provider = providerRegistry.getProvider(platform);
+
+      let redirectUri: string;
+      switch (platform) {
+        case Platform.YOUTUBE:
+          redirectUri = config.youtube.redirectUri;
+          break;
+        case Platform.FACEBOOK:
+          redirectUri = config.facebook.redirectUri;
+          break;
+        case Platform.TIKTOK:
+          redirectUri = config.tiktok.redirectUri;
+          break;
+        default:
+          throw new ValidationError(`Unsupported platform: ${platform}`);
+      }
+
+      const authUrl = provider.getAuthUrl(communityId, redirectUri);
+
+      res.json({
+        success: true,
+        data: {
+          authUrl,
+          platform,
+          communityId,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * GET /api/v1/auth/:platform/callback
+ * OAuth callback endpoint
+ */
+router.get(
+  '/:platform/callback',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const platform = req.params.platform as Platform;
+      const code = req.query.code as string;
+      const communityId = req.query.state as string;
+
+      if (!code) {
+        throw new ValidationError('Authorization code is required');
+      }
+
+      if (!communityId) {
+        throw new ValidationError('Community ID is required');
+      }
+
+      // Verify community exists
+      await db.getCommunityById(communityId);
+
+      const provider = providerRegistry.getProvider(platform);
+
+      let redirectUri: string;
+      switch (platform) {
+        case Platform.YOUTUBE:
+          redirectUri = config.youtube.redirectUri;
+          break;
+        case Platform.FACEBOOK:
+          redirectUri = config.facebook.redirectUri;
+          break;
+        case Platform.TIKTOK:
+          redirectUri = config.tiktok.redirectUri;
+          break;
+        default:
+          throw new ValidationError(`Unsupported platform: ${platform}`);
+      }
+
+      const tokens = await provider.exchangeCodeForTokens(code, redirectUri);
+
+      await db.saveOAuthTokens({
+        communityId,
+        platform,
+        tokens,
+        updatedAt: new Date(),
+      });
+
+      logger.info('OAuth tokens saved', { communityId, platform });
+
+      res.send(`
+        <html>
+          <body>
+            <h1>Authorization Successful!</h1>
+            <p>You have successfully connected ${platform} to your community.</p>
+            <p>You can close this window now.</p>
+          </body>
+        </html>
+      `);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * DELETE /api/v1/auth/:platform
+ * Revoke OAuth tokens for a platform
+ */
+router.delete(
+  '/:platform',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const platform = req.params.platform as Platform;
+      const communityId = req.query.communityId as string;
+
+      if (!communityId) {
+        throw new ValidationError('communityId query parameter is required');
+      }
+
+      await db.deleteOAuthTokens(communityId, platform);
+
+      logger.info('OAuth tokens deleted', { communityId, platform });
+
+      res.json({
+        success: true,
+        data: {
+          message: `${platform} authorization revoked`,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+export default router;
