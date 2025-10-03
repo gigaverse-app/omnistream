@@ -8,7 +8,7 @@
     }
   },
   
-  "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code && npx playwright install chromium",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   
   "customizations": {
     "vscode": {
@@ -25,9 +25,5 @@
     }
   },
   
-  "forwardPorts": [3000],
-  
-  "remoteEnv": {
-    "PATH": "${containerEnv:PATH}:/usr/local/share/npm-global/bin"
-  }
+  "forwardPorts": [3000]
 }

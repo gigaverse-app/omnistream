@@ -144,6 +144,9 @@ router.delete(
         throw new ValidationError('communityId query parameter is required');
       }
 
+      // Verify community exists
+      await db.getCommunityById(communityId);
+
       await db.deleteOAuthTokens(communityId, platform);
 
       logger.info('OAuth tokens deleted', { communityId, platform });

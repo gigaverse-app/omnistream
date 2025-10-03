@@ -21,12 +21,15 @@ export default {
   ],
   coverageThreshold: {
     global: {
-      branches: 20,
-      functions: 25,
-      lines: 20,
-      statements: 20,
+      branches: 35,
+      functions: 40,
+      lines: 45,
+      statements: 45,
     },
   },
   testMatch: ['**/__tests__/unit/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/__tests__/integration/'],
+  testTimeout: 10000,
+  forceExit: true,
+  detectOpenHandles: true,
 };

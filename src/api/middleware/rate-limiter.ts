@@ -15,13 +15,17 @@ class RateLimiter {
   private store: Map<string, RateLimitStore> = new Map();
   private windowMs: number;
   private maxRequests: number;
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor(windowMs: number, maxRequests: number) {
     this.windowMs = windowMs;
     this.maxRequests = maxRequests;
 
     // Clean up expired entries every minute
-    setInterval(() => this.cleanup(), 60000);
+    // Only start interval in non-test environment
+    if (process.env.NODE_ENV !== 'test') {
+      this.cleanupInterval = setInterval(() => this.cleanup(), 60000);
+    }
   }
 
   private cleanup(): void {
@@ -30,6 +34,13 @@ class RateLimiter {
       if (now > value.resetTime) {
         this.store.delete(key);
       }
+    }
+  }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
     }
   }
 

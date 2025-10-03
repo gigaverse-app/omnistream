@@ -65,6 +65,15 @@ class Database {
     this.oauthTokens.set(key, { ...tokens, updatedAt: new Date() });
   }
 
+  async saveOAuthToken(communityId: string, platform: Platform, tokens: any): Promise<void> {
+    await this.saveOAuthTokens({
+      communityId,
+      platform,
+      tokens,
+      updatedAt: new Date(),
+    });
+  }
+
   async getOAuthTokens(
     communityId: string,
     platform: Platform
@@ -77,6 +86,15 @@ class Database {
       );
     }
     return tokens;
+  }
+
+  async getOAuthToken(communityId: string, platform: Platform): Promise<any | null> {
+    try {
+      const tokenData = await this.getOAuthTokens(communityId, platform);
+      return tokenData.tokens;
+    } catch (error) {
+      return null;
+    }
   }
 
   async deleteOAuthTokens(communityId: string, platform: Platform): Promise<void> {
@@ -160,6 +178,15 @@ class Database {
     const messages = this.chatMessages.get(message.streamId) || [];
     messages.push(message);
     this.chatMessages.set(message.streamId, messages);
+  }
+
+  async addChatMessage(data: Omit<ChatMessage, 'id'>): Promise<ChatMessage> {
+    const message: ChatMessage = {
+      ...data,
+      id: crypto.randomUUID(),
+    };
+    await this.saveChatMessage(message);
+    return message;
   }
 
   async getChatMessages(streamId: string, since?: Date): Promise<ChatMessage[]> {
