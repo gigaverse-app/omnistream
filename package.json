@@ -11,6 +11,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:integration": "playwright test",
+    "test:e2e": "playwright test src/__tests__/integration/e2e-stream.test.ts",
+    "demo": "tsx demo/demo-stream.ts",
+    "demo:simple": "tsx demo/simple-demo.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
