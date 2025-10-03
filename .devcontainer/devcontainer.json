@@ -1,0 +1,33 @@
+{
+  "name": "omnistream",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  
+  "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code && npx playwright install chromium",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-playwright.playwright"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  
+  "forwardPorts": [3000],
+  
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/usr/local/share/npm-global/bin"
+  }
+}
