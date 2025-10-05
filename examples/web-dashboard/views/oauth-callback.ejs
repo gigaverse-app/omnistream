@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback - Omnistream</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card callback-card">
+            <h1>✅ Authentication Successful!</h1>
+            <p>You've successfully connected your <%= platform %> account.</p>
+            <p class="info">Authorization code has been received. You can close this window and return to the dashboard.</p>
+
+            <div class="callback-info">
+                <p><strong>Platform:</strong> <%= platform %></p>
+                <% if (code) { %>
+                <p><strong>Code:</strong> <code><%= code.substring(0, 20) %>...</code></p>
+                <% } %>
+            </div>
+
+            <button onclick="window.close()" class="btn btn-primary">Close Window</button>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">Return to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        // Notify the parent window if opened in popup
+        if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({
+                type: 'oauth-success',
+                platform: '<%= platform %>',
+                code: '<%= code %>',
+                state: '<%= state %>'
+            }, '*');
+
+            // Auto-close after 2 seconds
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
