@@ -79,7 +79,7 @@ class Logger {
     this.log('warn', message, data);
   }
 
-  error(message: string, error?: Error): void {
+  error(message: string, error?: unknown): void {
     const errorData =
       error instanceof Error ? { message: error.message, stack: error.stack } : error;
     this.log('error', message, errorData);

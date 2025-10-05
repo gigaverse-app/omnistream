@@ -7,12 +7,7 @@ import { OmnistreamError } from '../../core/errors.js';
 import { logger } from '../../utils/logger.js';
 
 export function errorHandler(error: Error, req: Request, res: Response, _next: NextFunction): void {
-  logger.error('Request error', {
-    error: error.message,
-    stack: error.stack,
-    path: req.path,
-    method: req.method,
-  });
+  logger.error(`Request error - ${req.method} ${req.path}`, error);
 
   if (error instanceof OmnistreamError) {
     res.status(error.statusCode).json({
