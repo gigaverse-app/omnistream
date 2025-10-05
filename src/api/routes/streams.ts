@@ -5,12 +5,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { streamService } from '../../core/services/stream-service.js';
 import { ValidationError } from '../../core/errors.js';
-import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
-
-// All stream routes require authentication
-router.use(authenticate);
 
 /**
  * POST /api/v1/streams
@@ -18,8 +14,11 @@ router.use(authenticate);
  */
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
-    const { title, description, scheduledStartTime, rtmpUrl, rtmpKey, platforms } = req.body;
+    const { communityId, title, description, scheduledStartTime, rtmpUrl, rtmpKey, platforms } = req.body;
+
+    if (!communityId || typeof communityId !== 'string') {
+      throw new ValidationError('Community ID is required');
+    }
 
     if (!title || typeof title !== 'string') {
       throw new ValidationError('Title is required');
@@ -57,11 +56,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
 /**
  * GET /api/v1/streams
- * List all streams for the authenticated community
+ * List all streams for a community
  */
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
+    const communityId = req.query.communityId as string;
+
+    if (!communityId) {
+      throw new ValidationError('communityId query parameter is required');
+    }
+
     const streams = await streamService.listStreams(communityId);
 
     res.json({
@@ -79,8 +83,12 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
  */
 router.get('/:streamId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
     const { streamId } = req.params;
+    const communityId = req.query.communityId as string;
+
+    if (!communityId) {
+      throw new ValidationError('communityId query parameter is required');
+    }
 
     const result = await streamService.getStreamStatus(streamId, communityId);
 
@@ -99,8 +107,12 @@ router.get('/:streamId', async (req: Request, res: Response, next: NextFunction)
  */
 router.post('/:streamId/start', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
     const { streamId } = req.params;
+    const { communityId } = req.body;
+
+    if (!communityId) {
+      throw new ValidationError('communityId is required in request body');
+    }
 
     const platformStreams = await streamService.startStream(streamId, communityId);
 
@@ -119,8 +131,12 @@ router.post('/:streamId/start', async (req: Request, res: Response, next: NextFu
  */
 router.post('/:streamId/stop', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
     const { streamId } = req.params;
+    const { communityId } = req.body;
+
+    if (!communityId) {
+      throw new ValidationError('communityId is required in request body');
+    }
 
     const platformStreams = await streamService.stopStream(streamId, communityId);
 
@@ -139,8 +155,12 @@ router.post('/:streamId/stop', async (req: Request, res: Response, next: NextFun
  */
 router.delete('/:streamId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const communityId = req.community!.id;
     const { streamId } = req.params;
+    const communityId = req.query.communityId as string;
+
+    if (!communityId) {
+      throw new ValidationError('communityId query parameter is required');
+    }
 
     await streamService.deleteStream(streamId, communityId);
 

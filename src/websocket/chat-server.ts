@@ -78,21 +78,21 @@ export class ChatServer {
   }
 
   private async handleSubscribe(ws: WebSocket, message: any): Promise<void> {
-    const { streamId, apiKey } = message;
+    const { streamId, communityId } = message;
 
-    if (!streamId || !apiKey) {
+    if (!streamId || !communityId) {
       ws.send(
         JSON.stringify({
           type: 'error',
-          error: 'streamId and apiKey are required',
+          error: 'streamId and communityId are required',
         })
       );
       return;
     }
 
     try {
-      // Authenticate
-      const community = await db.getCommunityByApiKey(apiKey);
+      // Verify community exists
+      const community = await db.getCommunityById(communityId);
 
       // Verify stream exists and belongs to community
       const stream = await db.getStream(streamId);

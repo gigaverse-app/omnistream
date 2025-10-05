@@ -30,7 +30,6 @@ export interface Config {
   };
 
   security: {
-    apiKeySalt: string;
     jwtSecret: string;
   };
 
@@ -77,7 +76,6 @@ export const config: Config = {
   },
 
   security: {
-    apiKeySalt: getEnvVarOptional('API_KEY_SALT', 'default-salt-change-in-production'),
     jwtSecret: getEnvVarOptional('JWT_SECRET', 'default-secret-change-in-production'),
   },
 

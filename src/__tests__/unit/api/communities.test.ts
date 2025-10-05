@@ -23,7 +23,6 @@ describe('Communities API Routes', () => {
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.data.name).toBe('Test Community');
-      expect(response.body.data.apiKey).toMatch(/^omni_/);
       expect(response.body.data.id).toBeDefined();
     });
 
@@ -80,7 +79,6 @@ describe('Communities API Routes', () => {
       const community = response.body.data[response.body.data.length - 1];
       expect(community).toHaveProperty('id');
       expect(community).toHaveProperty('name');
-      expect(community).toHaveProperty('apiKey');
       expect(community).toHaveProperty('createdAt');
       expect(community).toHaveProperty('updatedAt');
     });

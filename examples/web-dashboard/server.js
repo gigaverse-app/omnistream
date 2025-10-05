@@ -49,18 +49,18 @@ app.get('/api/communities', async (req, res) => {
   }
 });
 
-// Get community info by API key (used for profile display)
-app.get('/api/community', async (req, res) => {
+// Get community info by ID (used for profile display)
+app.get('/api/community/:communityId', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
-    if (!apiKey) {
-      return res.status(401).json({ success: false, error: 'API key required' });
+    const { communityId } = req.params;
+    if (!communityId) {
+      return res.status(400).json({ success: false, error: 'Community ID required' });
     }
 
-    // List all communities and find the one with matching API key
+    // List all communities and find the one with matching ID
     const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     const communities = response.data.data || [];
-    const community = communities.find((c) => c.apiKey === apiKey);
+    const community = communities.find((c) => c.id === communityId);
 
     if (!community) {
       return res.status(404).json({ success: false, error: 'Community not found' });
@@ -77,38 +77,57 @@ app.get('/api/community', async (req, res) => {
 // Get OAuth status for platforms
 app.get('/api/platforms', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
-    if (!apiKey) {
-      return res.status(401).json({ success: false, error: 'API key required' });
+    const communityId = req.query.communityId;
+    if (!communityId) {
+      return res.status(400).json({ success: false, error: 'Community ID required' });
     }
 
     // Get community info
     const communitiesResponse = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     const communities = communitiesResponse.data.data || [];
-    const community = communities.find((c) => c.apiKey === apiKey);
+    const community = communities.find((c) => c.id === communityId);
 
     if (!community) {
       return res.status(404).json({ success: false, error: 'Community not found' });
     }
 
-    // Return platform info with OAuth URLs
+    // Check OAuth token status for each platform
+    const checkPlatformConnection = async (platform) => {
+      try {
+        const response = await axios.get(
+          `${OMNISTREAM_API_URL}/api/v1/auth/${platform}/status?communityId=${community.id}`
+        );
+        return response.data.connected || false;
+      } catch (error) {
+        // If endpoint doesn't exist or returns error, assume not connected
+        return false;
+      }
+    };
+
+    const [youtubeConnected, facebookConnected, tiktokConnected] = await Promise.all([
+      checkPlatformConnection('youtube'),
+      checkPlatformConnection('facebook'),
+      checkPlatformConnection('tiktok'),
+    ]);
+
+    // Return platform info with OAuth URLs and connection status
     const platforms = [
       {
         name: 'youtube',
         displayName: 'YouTube',
-        connected: false, // Will be determined by OAuth tokens in real implementation
+        connected: youtubeConnected,
         authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/youtube/callback?communityId=${community.id}`,
       },
       {
         name: 'facebook',
         displayName: 'Facebook',
-        connected: false,
+        connected: facebookConnected,
         authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/facebook/callback?communityId=${community.id}`,
       },
       {
         name: 'tiktok',
         displayName: 'TikTok',
-        connected: false,
+        connected: tiktokConnected,
         authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/tiktok/callback?communityId=${community.id}`,
       },
     ];
@@ -124,24 +143,15 @@ app.get('/api/platforms', async (req, res) => {
 // Get OAuth authorization URL
 app.get('/api/auth/:platform/authorize', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
-    if (!apiKey) {
-      return res.status(401).json({ success: false, error: 'API key required' });
-    }
-
-    // Get community info
-    const communitiesResponse = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
-    const communities = communitiesResponse.data.data || [];
-    const community = communities.find((c) => c.apiKey === apiKey);
-
-    if (!community) {
-      return res.status(404).json({ success: false, error: 'Community not found' });
+    const communityId = req.query.communityId;
+    if (!communityId) {
+      return res.status(400).json({ success: false, error: 'Community ID required' });
     }
 
     const response = await axios.get(
       `${OMNISTREAM_API_URL}/api/v1/auth/${req.params.platform}/authorize`,
       {
-        params: { communityId: community.id },
+        params: { communityId },
       }
     );
     res.json(response.data);
@@ -154,10 +164,7 @@ app.get('/api/auth/:platform/authorize', async (req, res) => {
 
 app.post('/api/streams', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
-    const response = await axios.post(`${OMNISTREAM_API_URL}/api/v1/streams`, req.body, {
-      headers: { 'x-api-key': apiKey },
-    });
+    const response = await axios.post(`${OMNISTREAM_API_URL}/api/v1/streams`, req.body);
     res.json(response.data);
   } catch (error) {
     res
@@ -168,9 +175,8 @@ app.post('/api/streams', async (req, res) => {
 
 app.get('/api/streams', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
     const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/streams`, {
-      headers: { 'x-api-key': apiKey },
+      params: { communityId: req.query.communityId },
     });
     res.json(response.data);
   } catch (error) {
@@ -182,11 +188,10 @@ app.get('/api/streams', async (req, res) => {
 
 app.get('/api/streams/:streamId', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
     const response = await axios.get(
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`,
       {
-        headers: { 'x-api-key': apiKey },
+        params: { communityId: req.query.communityId },
       }
     );
     res.json(response.data);
@@ -199,13 +204,9 @@ app.get('/api/streams/:streamId', async (req, res) => {
 
 app.post('/api/streams/:streamId/start', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
     const response = await axios.post(
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}/start`,
-      req.body,
-      {
-        headers: { 'x-api-key': apiKey },
-      }
+      req.body
     );
     res.json(response.data);
   } catch (error) {
@@ -217,13 +218,9 @@ app.post('/api/streams/:streamId/start', async (req, res) => {
 
 app.post('/api/streams/:streamId/stop', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
     const response = await axios.post(
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}/stop`,
-      {},
-      {
-        headers: { 'x-api-key': apiKey },
-      }
+      req.body
     );
     res.json(response.data);
   } catch (error) {
@@ -235,11 +232,10 @@ app.post('/api/streams/:streamId/stop', async (req, res) => {
 
 app.delete('/api/streams/:streamId', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'];
     const response = await axios.delete(
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`,
       {
-        headers: { 'x-api-key': apiKey },
+        params: { communityId: req.query.communityId },
       }
     );
     res.json(response.data);

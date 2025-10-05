@@ -13,7 +13,6 @@ describe('Database', () => {
 
       expect(community.id).toBeDefined();
       expect(community.name).toBe('Test Community');
-      expect(community.apiKey).toMatch(/^omni_/);
       expect(community.createdAt).toBeInstanceOf(Date);
     });
 
@@ -25,12 +24,6 @@ describe('Database', () => {
       expect(retrieved.name).toBe(created.name);
     });
 
-    it('should get community by API key', async () => {
-      const created = await db.createCommunity('Test Community');
-      const retrieved = await db.getCommunityByApiKey(created.apiKey);
-
-      expect(retrieved.id).toBe(created.id);
-    });
 
     it('should throw NotFoundError for invalid community ID', async () => {
       await expect(db.getCommunityById('invalid-id')).rejects.toThrow(NotFoundError);

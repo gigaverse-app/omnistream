@@ -16,7 +16,6 @@ import crypto from 'crypto';
 
 class Database {
   private communities: Map<string, Community> = new Map();
-  private communityByApiKey: Map<string, string> = new Map();
   private oauthTokens: Map<string, CommunityOAuthTokens> = new Map();
   private streams: Map<string, StreamConfig> = new Map();
   private platformStreams: Map<string, PlatformStream[]> = new Map();
@@ -25,17 +24,14 @@ class Database {
   // Community methods
   async createCommunity(name: string): Promise<Community> {
     const id = crypto.randomUUID();
-    const apiKey = `omni_${crypto.randomBytes(32).toString('hex')}`;
     const community: Community = {
       id,
       name,
-      apiKey,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     this.communities.set(id, community);
-    this.communityByApiKey.set(apiKey, id);
     return community;
   }
 
@@ -45,14 +41,6 @@ class Database {
       throw new NotFoundError(`Community not found: ${id}`);
     }
     return community;
-  }
-
-  async getCommunityByApiKey(apiKey: string): Promise<Community> {
-    const communityId = this.communityByApiKey.get(apiKey);
-    if (!communityId) {
-      throw new NotFoundError('Invalid API key');
-    }
-    return this.getCommunityById(communityId);
   }
 
   async listCommunities(): Promise<Community[]> {

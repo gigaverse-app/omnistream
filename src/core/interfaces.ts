@@ -39,7 +39,6 @@ export interface OAuthToken {
 export interface Community {
   id: string;
   name: string;
-  apiKey: string;
   createdAt: Date;
   updatedAt: Date;
 }

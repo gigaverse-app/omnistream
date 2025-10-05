@@ -27,15 +27,15 @@ describe('Rate Limiter Middleware', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should use API key as identifier if provided', () => {
-    req.headers = { 'x-api-key': 'test-api-key' };
+  it('should use communityId as identifier if provided in body', () => {
+    req.body = { communityId: 'test-community-id' };
 
     rateLimit(req as Request, res as Response, next);
 
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should use IP address as identifier if no API key', () => {
+  it('should use IP address as identifier if no communityId', () => {
     const reqWithIp = {
       ...req,
       ip: '192.168.1.1',

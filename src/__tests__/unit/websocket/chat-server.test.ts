@@ -81,7 +81,7 @@ describe('ChatServer', () => {
     ws.close();
   });
 
-  it('should require authentication for subscription', async () => {
+  it('should require communityId for subscription', async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
@@ -94,12 +94,12 @@ describe('ChatServer', () => {
 
     const response = await waitForMessage(ws);
     expect(response.type).toBe('error');
-    expect(response.message).toContain('API key');
+    expect(response.message).toContain('communityId');
 
     ws.close();
   });
 
-  it('should reject invalid API key', async () => {
+  it('should reject invalid communityId', async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
@@ -107,13 +107,13 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: 'invalid-key',
+        communityId: 'invalid-community-id',
       })
     );
 
     const response = await waitForMessage(ws);
     expect(response.type).toBe('error');
-    expect(response.message).toContain('Invalid API key');
+    expect(response.message).toContain('Community not found');
 
     ws.close();
   });
@@ -126,7 +126,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: 'non-existent-id',
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
 
@@ -145,7 +145,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
 
@@ -164,7 +164,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
     await waitForMessage(ws); // Skip subscribed message
@@ -195,7 +195,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
     await waitForMessage(ws); // Skip subscribed message
@@ -222,7 +222,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
     await waitForMessage(ws); // Skip subscribed message
@@ -290,7 +290,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
     await waitForMessage(ws); // Skip subscribed message
@@ -317,7 +317,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
 
@@ -325,7 +325,7 @@ describe('ChatServer', () => {
       JSON.stringify({
         type: 'subscribe',
         streamId: stream.id,
-        apiKey: community.apiKey,
+        communityId: community.id,
       })
     );
 

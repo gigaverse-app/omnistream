@@ -26,7 +26,6 @@ test.describe('API Integration Tests', () => {
     const data = await response.json();
     expect(data.success).toBe(true);
     expect(data.data.name).toBe('Test Community');
-    expect(data.data.apiKey).toMatch(/^omni_/);
   });
 
   test('should list communities', async ({ request }) => {
@@ -39,7 +38,7 @@ test.describe('API Integration Tests', () => {
     expect(data.data.length).toBeGreaterThan(0);
   });
 
-  test('should reject stream creation without API key', async ({ request }) => {
+  test('should reject stream creation without communityId', async ({ request }) => {
     const response = await request.post('/api/v1/streams', {
       data: {
         title: 'Test Stream',
@@ -49,7 +48,7 @@ test.describe('API Integration Tests', () => {
       },
     });
 
-    expect(response.status()).toBe(401);
+    expect(response.status()).toBe(400);
   });
 
   test('should get auth URL for YouTube', async ({ request }) => {
@@ -101,13 +100,11 @@ test.describe('API Integration Tests', () => {
     });
 
     const communityData = await communityResponse.json();
-    const testApiKey = communityData.data.apiKey;
+    const testCommunityId = communityData.data.id;
 
     const response = await request.post('/api/v1/streams', {
-      headers: {
-        'X-API-Key': testApiKey,
-      },
       data: {
+        communityId: testCommunityId,
         // Missing required fields
         title: 'Test Stream',
       },
@@ -129,13 +126,11 @@ test.describe('API Integration Tests', () => {
     });
 
     const communityData = await communityResponse.json();
-    const testApiKey = communityData.data.apiKey;
+    const testCommunityId = communityData.data.id;
 
     const response = await request.post('/api/v1/streams', {
-      headers: {
-        'X-API-Key': testApiKey,
-      },
       data: {
+        communityId: testCommunityId,
         title: 'Integration Test Stream',
         description: 'Testing stream creation',
         rtmpUrl: 'rtmp://example.com/live',

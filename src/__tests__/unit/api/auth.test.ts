@@ -180,6 +180,72 @@ describe('Auth API Routes', () => {
     });
   });
 
+  describe('GET /api/v1/auth/:platform/status', () => {
+    it('should return 400 without communityId', async () => {
+      const response = await request(app).get('/api/v1/auth/youtube/status');
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('communityId');
+    });
+
+    it('should return 404 for non-existent community', async () => {
+      const response = await request(app).get(
+        '/api/v1/auth/youtube/status?communityId=non-existent-id'
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('should return not connected when no token exists', async () => {
+      const response = await request(app).get(
+        `/api/v1/auth/youtube/status?communityId=${community.id}`
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.connected).toBe(false);
+      expect(response.body.data.hasToken).toBe(false);
+    });
+
+    it('should return connected when token exists', async () => {
+      // Store a token first
+      await db.saveOAuthToken(community.id, Platform.YOUTUBE, {
+        accessToken: 'test-token',
+        refreshToken: 'test-refresh',
+        expiresAt: new Date(Date.now() + 3600000),
+        scope: ['youtube.force-ssl'],
+      });
+
+      const response = await request(app).get(
+        `/api/v1/auth/youtube/status?communityId=${community.id}`
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.connected).toBe(true);
+      expect(response.body.data.hasToken).toBe(true);
+      expect(response.body.data.platform).toBe('youtube');
+    });
+
+    it('should work for all supported platforms', async () => {
+      // Test Facebook
+      const fbResponse = await request(app).get(
+        `/api/v1/auth/facebook/status?communityId=${community.id}`
+      );
+      expect(fbResponse.status).toBe(200);
+      expect(fbResponse.body.connected).toBe(false);
+
+      // Test TikTok
+      const ttResponse = await request(app).get(
+        `/api/v1/auth/tiktok/status?communityId=${community.id}`
+      );
+      expect(ttResponse.status).toBe(200);
+      expect(ttResponse.body.connected).toBe(false);
+    });
+  });
+
   describe('DELETE /api/v1/auth/:platform', () => {
     beforeEach(async () => {
       // Store a token first

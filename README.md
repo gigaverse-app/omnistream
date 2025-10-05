@@ -58,71 +58,70 @@ cp .env.example .env
 
 ## 🚦 Quick Start
 
-### First Time Setup
+### 🌟 Interactive Web Dashboard (Recommended)
 
-**⚠️ IMPORTANT:** Omnistream uses TypeScript. You must build before running in production mode.
+The **easiest way to try Omnistream** is with our interactive web dashboard:
 
-**Option 1: Development Mode (Recommended)**
-
+**Terminal 1 - Start Omnistream Server:**
 ```bash
+npm install
 npm run dev              # Auto-compiles & watches for changes
 ```
 
-**Option 2: Production Mode**
-
+**Terminal 2 - Start Web Dashboard:**
 ```bash
-npm run build           # Compile TypeScript → JavaScript
-npm start               # Run the compiled code
+cd examples/web-dashboard
+npm install             # First time only
+npm start               # Start dashboard at http://localhost:4000
 ```
 
-The server will start on `http://localhost:3000` by default.
+**Then open: http://localhost:4000**
 
-### Running Tests & Demos
+The dashboard provides a complete UI to explore all Omnistream features:
+
+- ✅ **Community Management** - Create and manage communities
+- ✅ **OAuth Integration** - Connect YouTube, Facebook & TikTok with one click
+- ✅ **Stream Management** - Create multi-platform streams visually
+- ✅ **Real-Time Control** - Start/stop streams with instant feedback
+- ✅ **RTMP Credentials** - Copy stream URLs and keys for OBS/streaming software
+- ✅ **Connection Status** - See which platforms are connected in real-time
+
+**Fully Tested:**
+- ✅ All dashboard functionality runs with main test suite (`npm test`)
+- ✅ 16+ Playwright UI tests included
+- ✅ OAuth flow validation tests
+
+See **[examples/web-dashboard/README.md](./examples/web-dashboard/README.md)** for detailed dashboard documentation.
+
+---
+
+### Alternative: CLI/API Testing
+
+If you prefer command-line or API testing:
 
 ```bash
-# Run tests
-npm test                        # Unit tests
-npm run test:integration        # Integration tests
-npm run test:e2e               # End-to-end tests
+# Start server
+npm run dev              # Development mode (recommended)
+# OR
+npm run build && npm start   # Production mode
 
-# Run demos
-npm run demo:simple            # Automated API demo
-npm run demo                   # Interactive streaming demo
+# Run automated demos
+npm run demo:simple      # Non-interactive API demo
+npm run demo            # Interactive CLI streaming demo
+```
+
+### Running Tests
+
+```bash
+npm test                        # Unit tests (auth, OAuth, streams, etc.)
+npm run test:dashboard          # Web dashboard UI tests (Playwright)
+npm run test:integration        # Integration tests
+npm run test:all                # Run all tests (unit + dashboard + integration)
 ```
 
 ### Complete Setup Guide
 
-For detailed first-time setup instructions, see **[docs/guides/getting-started.md](./docs/guides/getting-started.md)**
-
-### 🌐 Web Dashboard
-
-Run the interactive browser-based dashboard:
-
-**In a new terminal:**
-
-```bash
-cd examples/web-dashboard
-npm install                    # First time only
-npm start                      # Start dashboard server
-```
-
-Then open: **http://localhost:4000**
-
-The dashboard provides a complete UI for:
-
-- Creating communities and managing API keys
-- OAuth authorization for YouTube and Facebook
-- Creating and managing multi-platform streams
-- Starting/stopping streams with visual controls
-- Viewing RTMP credentials
-- Real-time stream monitoring
-
-**Full testing included:**
-
-- 12 Bash API tests: `./test-dashboard.sh`
-- 16 Playwright UI tests: `npm test`
-
-See [examples/web-dashboard/README.md](./examples/web-dashboard/README.md) for complete dashboard documentation.
+For detailed setup instructions including OAuth provider configuration, see **[docs/guides/getting-started.md](./docs/guides/getting-started.md)**
 
 ## 📡 API Documentation
 
@@ -134,11 +133,13 @@ http://localhost:3000/api/v1
 
 ### Authentication
 
-Most endpoints require an API key header:
+Omnistream is designed to be run as a **private instance**. The administrator should guard access at the network level using:
+- Firewall rules
+- Reverse proxy with authentication (nginx, Caddy, etc.)
+- VPN
+- Network isolation
 
-```
-X-API-Key: omni_xxxxxxxxxxxxx
-```
+Most endpoints require a `communityId` parameter to identify which community the request belongs to.
 
 ### Endpoints
 
@@ -163,7 +164,6 @@ Response:
   "data": {
     "id": "uuid",
     "name": "My Community",
-    "apiKey": "omni_xxxxxxxxxxxxx",
     "createdAt": "2025-10-02T...",
     "updatedAt": "2025-10-02T..."
   }
@@ -217,10 +217,10 @@ DELETE /api/v1/auth/:platform?communityId=<community-id>
 
 ```http
 POST /api/v1/streams
-X-API-Key: omni_xxxxxxxxxxxxx
 Content-Type: application/json
 
 {
+  "communityId": "uuid",
   "title": "My Live Stream",
   "description": "Stream description",
   "rtmpUrl": "rtmp://your-rtmp-server.com/live",
@@ -263,36 +263,41 @@ Response:
 **List Streams**
 
 ```http
-GET /api/v1/streams
-X-API-Key: omni_xxxxxxxxxxxxx
+GET /api/v1/streams?communityId=uuid
 ```
 
 **Get Stream Status**
 
 ```http
-GET /api/v1/streams/:streamId
-X-API-Key: omni_xxxxxxxxxxxxx
+GET /api/v1/streams/:streamId?communityId=uuid
 ```
 
 **Start Stream**
 
 ```http
 POST /api/v1/streams/:streamId/start
-X-API-Key: omni_xxxxxxxxxxxxx
+Content-Type: application/json
+
+{
+  "communityId": "uuid"
+}
 ```
 
 **Stop Stream**
 
 ```http
 POST /api/v1/streams/:streamId/stop
-X-API-Key: omni_xxxxxxxxxxxxx
+Content-Type: application/json
+
+{
+  "communityId": "uuid"
+}
 ```
 
 **Delete Stream**
 
 ```http
-DELETE /api/v1/streams/:streamId
-X-API-Key: omni_xxxxxxxxxxxxx
+DELETE /api/v1/streams/:streamId?communityId=uuid
 ```
 
 ### WebSocket Chat
@@ -307,7 +312,7 @@ ws.send(
   JSON.stringify({
     type: 'subscribe',
     streamId: 'your-stream-id',
-    apiKey: 'omni_xxxxxxxxxxxxx',
+    communityId: 'your-community-id',
   })
 );
 
@@ -372,13 +377,14 @@ TIKTOK_CLIENT_SECRET=your_client_secret
 TIKTOK_REDIRECT_URI=http://localhost:3000/api/v1/auth/tiktok/callback
 
 # Security
-API_KEY_SALT=random_salt_string
 JWT_SECRET=random_jwt_secret
 
 # Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000  # 15 minutes
 RATE_LIMIT_MAX_REQUESTS=100
 ```
+
+**Note**: Omnistream does not use API keys for authentication. Access should be controlled at the network level (firewall, reverse proxy, VPN, etc.).
 
 ### Getting OAuth Credentials
 

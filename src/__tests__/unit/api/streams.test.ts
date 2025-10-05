@@ -16,15 +16,13 @@ app.use(errorHandler);
 
 describe('Streams API Routes', () => {
   let community: any;
-  let apiKey: string;
 
   beforeEach(async () => {
     community = await db.createCommunity('Test Community');
-    apiKey = community.apiKey;
   });
 
   describe('POST /api/v1/streams', () => {
-    it('should return 401 without API key', async () => {
+    it('should return 400 without communityId', async () => {
       const response = await request(app)
         .post('/api/v1/streams')
         .send({
@@ -34,30 +32,16 @@ describe('Streams API Routes', () => {
           platforms: ['youtube'],
         });
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
-    });
-
-    it('should return 404 with invalid API key', async () => {
-      const response = await request(app)
-        .post('/api/v1/streams')
-        .set('X-API-Key', 'invalid-key')
-        .send({
-          title: 'Test Stream',
-          rtmpUrl: 'rtmp://example.com',
-          rtmpKey: 'key',
-          platforms: ['youtube'],
-        });
-
-      expect(response.status).toBe(404);
-      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('communityId');
     });
 
     it('should return 400 if title is missing', async () => {
       const response = await request(app)
         .post('/api/v1/streams')
-        .set('X-API-Key', apiKey)
         .send({
+          communityId: community.id,
           rtmpUrl: 'rtmp://example.com',
           rtmpKey: 'key',
           platforms: ['youtube'],
@@ -71,8 +55,8 @@ describe('Streams API Routes', () => {
     it('should return 400 if rtmpUrl is missing', async () => {
       const response = await request(app)
         .post('/api/v1/streams')
-        .set('X-API-Key', apiKey)
         .send({
+          communityId: community.id,
           title: 'Test Stream',
           rtmpKey: 'key',
           platforms: ['youtube'],
@@ -86,8 +70,8 @@ describe('Streams API Routes', () => {
     it('should return 400 if rtmpKey is missing', async () => {
       const response = await request(app)
         .post('/api/v1/streams')
-        .set('X-API-Key', apiKey)
         .send({
+          communityId: community.id,
           title: 'Test Stream',
           rtmpUrl: 'rtmp://example.com',
           platforms: ['youtube'],
@@ -99,7 +83,8 @@ describe('Streams API Routes', () => {
     });
 
     it('should return 400 if platforms is empty', async () => {
-      const response = await request(app).post('/api/v1/streams').set('X-API-Key', apiKey).send({
+      const response = await request(app).post('/api/v1/streams').send({
+        communityId: community.id,
         title: 'Test Stream',
         rtmpUrl: 'rtmp://example.com',
         rtmpKey: 'key',
@@ -114,8 +99,8 @@ describe('Streams API Routes', () => {
     it('should create stream but fail on platform OAuth', async () => {
       const response = await request(app)
         .post('/api/v1/streams')
-        .set('X-API-Key', apiKey)
         .send({
+          communityId: community.id,
           title: 'Test Stream',
           description: 'Test Description',
           rtmpUrl: 'rtmp://example.com',
@@ -131,15 +116,16 @@ describe('Streams API Routes', () => {
   });
 
   describe('GET /api/v1/streams', () => {
-    it('should return 401 without API key', async () => {
+    it('should return 400 without communityId', async () => {
       const response = await request(app).get('/api/v1/streams');
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('communityId');
     });
 
     it('should return empty array when no streams exist', async () => {
-      const response = await request(app).get('/api/v1/streams').set('X-API-Key', apiKey);
+      const response = await request(app).get('/api/v1/streams').query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -156,7 +142,7 @@ describe('Streams API Routes', () => {
         platforms: [Platform.YOUTUBE],
       });
 
-      const response = await request(app).get('/api/v1/streams').set('X-API-Key', apiKey);
+      const response = await request(app).get('/api/v1/streams').query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -166,16 +152,18 @@ describe('Streams API Routes', () => {
   });
 
   describe('GET /api/v1/streams/:streamId', () => {
-    it('should return 401 without API key', async () => {
+    it('should return 400 without communityId', async () => {
       const response = await request(app).get('/api/v1/streams/stream-id');
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('communityId');
     });
 
     it('should return 404 for non-existent stream', async () => {
       const response = await request(app)
         .get('/api/v1/streams/non-existent-id')
-        .set('X-API-Key', apiKey);
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
@@ -192,7 +180,7 @@ describe('Streams API Routes', () => {
 
       const response = await request(app)
         .get(`/api/v1/streams/${stream.id}`)
-        .set('X-API-Key', apiKey);
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -202,16 +190,18 @@ describe('Streams API Routes', () => {
   });
 
   describe('DELETE /api/v1/streams/:streamId', () => {
-    it('should return 401 without API key', async () => {
+    it('should return 400 without communityId', async () => {
       const response = await request(app).delete('/api/v1/streams/stream-id');
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('communityId');
     });
 
     it('should return 404 for non-existent stream', async () => {
       const response = await request(app)
         .delete('/api/v1/streams/non-existent-id')
-        .set('X-API-Key', apiKey);
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(404);
     });
@@ -227,7 +217,7 @@ describe('Streams API Routes', () => {
 
       const response = await request(app)
         .delete(`/api/v1/streams/${stream.id}`)
-        .set('X-API-Key', apiKey);
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

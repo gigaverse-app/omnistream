@@ -124,6 +124,39 @@ router.get('/:platform/callback', async (req: Request, res: Response, next: Next
 });
 
 /**
+ * GET /api/v1/auth/:platform/status
+ * Check if a platform is connected (has valid OAuth tokens)
+ */
+router.get('/:platform/status', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const platform = req.params.platform as Platform;
+    const communityId = req.query.communityId as string;
+
+    if (!communityId) {
+      throw new ValidationError('communityId query parameter is required');
+    }
+
+    // Verify community exists
+    await db.getCommunityById(communityId);
+
+    // Check if OAuth token exists
+    const token = await db.getOAuthToken(communityId, platform);
+
+    res.json({
+      success: true,
+      connected: token !== null,
+      data: {
+        platform,
+        communityId,
+        hasToken: token !== null,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * DELETE /api/v1/auth/:platform
  * Revoke OAuth tokens for a platform
  */
