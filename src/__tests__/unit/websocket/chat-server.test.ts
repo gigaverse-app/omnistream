@@ -22,8 +22,10 @@ describe('ChatServer', () => {
     server.listen(port);
   });
 
-  afterAll((done) => {
-    server.close(done);
+  afterAll(async () => {
+    await new Promise<void>((resolve) => {
+      server.close(() => resolve());
+    });
   });
 
   beforeEach(async () => {
@@ -41,8 +43,10 @@ describe('ChatServer', () => {
     chatServer = new ChatServer(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     chatServer.close();
+    // Give websocket server time to cleanup
+    await new Promise((resolve) => setTimeout(resolve, 100));
   });
 
   const connectWebSocket = (): Promise<WebSocket> => {

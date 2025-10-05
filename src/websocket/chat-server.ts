@@ -300,8 +300,17 @@ export class ChatServer {
     for (const interval of this.pollIntervals.values()) {
       clearInterval(interval);
     }
+    this.pollIntervals.clear();
 
-    // Close all connections
+    // Close all client connections first
+    for (const client of this.clients.values()) {
+      if (client.ws.readyState === WebSocket.OPEN) {
+        client.ws.close();
+      }
+    }
+    this.clients.clear();
+
+    // Close WebSocket server
     this.wss.close();
     logger.info('Chat server closed');
   }

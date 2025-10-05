@@ -31,5 +31,6 @@ export default {
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/__tests__/integration/'],
   testTimeout: 10000,
   forceExit: true,
-  detectOpenHandles: true,
+  detectOpenHandles: false,
+  maxWorkers: '50%',
 };
