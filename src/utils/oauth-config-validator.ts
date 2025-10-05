@@ -167,7 +167,7 @@ export class OAuthConfigValidator {
           `${platform} redirect URI path should end with '${expectedPath}'. Current: ${url.pathname}`
         );
       }
-    } catch (error) {
+    } catch {
       errors.push(`${platform} redirect URI is not a valid URL: ${redirectUri}`);
     }
   }

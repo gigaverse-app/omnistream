@@ -40,19 +40,21 @@ export class ChatServer {
         })
       );
 
-      ws.on('message', async (data: string) => {
-        try {
-          const message = JSON.parse(data.toString());
-          await this.handleMessage(ws, message);
-        } catch (error) {
-          logger.error('WebSocket message error', error);
-          ws.send(
-            JSON.stringify({
-              type: 'error',
-              error: 'Invalid message format',
-            })
-          );
-        }
+      ws.on('message', (data: string) => {
+        void (async () => {
+          try {
+            const message = JSON.parse(data.toString());
+            await this.handleMessage(ws, message);
+          } catch (error) {
+            logger.error('WebSocket message error', error as Error);
+            ws.send(
+              JSON.stringify({
+                type: 'error',
+                error: 'Invalid message format',
+              })
+            );
+          }
+        })();
       });
 
       ws.on('close', () => {
@@ -252,8 +254,8 @@ export class ChatServer {
   }
 
   private startPolling(streamId: string, communityId: string): void {
-    const interval = setInterval(async () => {
-      await this.pollChatMessages(streamId, communityId);
+    const interval = setInterval(() => {
+      void this.pollChatMessages(streamId, communityId);
     }, 3000); // Poll every 3 seconds
 
     this.pollIntervals.set(streamId, interval);
@@ -339,7 +341,10 @@ export class ChatServer {
 
       // Close all client connections first
       for (const client of this.clients.values()) {
-        if (client.ws.readyState === WebSocket.OPEN || client.ws.readyState === WebSocket.CONNECTING) {
+        if (
+          client.ws.readyState === WebSocket.OPEN ||
+          client.ws.readyState === WebSocket.CONNECTING
+        ) {
           client.ws.close();
         }
       }

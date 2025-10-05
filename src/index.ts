@@ -69,7 +69,7 @@ server.listen(config.port, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
-  chatServer.close();
+  void chatServer.close();
   server.close(() => {
     logger.info('Server closed');
     process.exit(0);
@@ -78,7 +78,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
-  chatServer.close();
+  void chatServer.close();
   server.close(() => {
     logger.info('Server closed');
     process.exit(0);

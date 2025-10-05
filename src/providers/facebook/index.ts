@@ -46,17 +46,20 @@ export class FacebookProvider implements StreamProvider {
         },
       });
 
-      const { access_token } = response.data;
+      const { access_token }: { access_token: string } = response.data;
 
       // Exchange short-lived token for long-lived token
-      const longLivedResponse = await axios.get(`${this.FACEBOOK_GRAPH_URL}/oauth/access_token`, {
-        params: {
-          grant_type: 'fb_exchange_token',
-          client_id: config.facebook.appId,
-          client_secret: config.facebook.appSecret,
-          fb_exchange_token: access_token,
-        },
-      });
+      const longLivedResponse = await axios.get<{ access_token: string; expires_in?: number }>(
+        `${this.FACEBOOK_GRAPH_URL}/oauth/access_token`,
+        {
+          params: {
+            grant_type: 'fb_exchange_token',
+            client_id: config.facebook.appId,
+            client_secret: config.facebook.appSecret,
+            fb_exchange_token: access_token,
+          },
+        }
+      );
 
       return {
         accessToken: longLivedResponse.data.access_token,

@@ -71,11 +71,11 @@ class Database {
     return tokens;
   }
 
-  async getOAuthToken(communityId: string, platform: Platform): Promise<any | null> {
+  async getOAuthToken(communityId: string, platform: Platform): Promise<any> {
     try {
       const tokenData = await this.getOAuthTokens(communityId, platform);
       return tokenData.tokens;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

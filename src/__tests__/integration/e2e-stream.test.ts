@@ -49,7 +49,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 3: Creating stream configuration...');
     const createStreamResponse = await request.post('/api/v1/streams', {
       data: {
-        communityId: communityId,
+        communityId,
         title: 'E2E Integration Test Stream',
         description: 'Testing the complete streaming workflow',
         rtmpUrl: 'rtmp://test-server.example.com/live',
@@ -75,7 +75,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 4: Listing community streams...');
     const listStreamsResponse = await request.get('/api/v1/streams', {
       params: {
-        communityId: communityId,
+        communityId,
       },
     });
 
@@ -95,7 +95,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 5: Getting stream status...');
     const statusResponse = await request.get(`/api/v1/streams/${streamId}`, {
       params: {
-        communityId: communityId,
+        communityId,
       },
     });
 
@@ -114,7 +114,7 @@ test.describe('E2E Stream Management Flow', () => {
     );
     const startResponse = await request.post(`/api/v1/streams/${streamId}/start`, {
       data: {
-        communityId: communityId,
+        communityId,
       },
     });
 
@@ -131,7 +131,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 7: Stopping stream...');
     const stopResponse = await request.post(`/api/v1/streams/${streamId}/stop`, {
       data: {
-        communityId: communityId,
+        communityId,
       },
     });
 
@@ -145,7 +145,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 8: Deleting stream...');
     const deleteResponse = await request.delete(`/api/v1/streams/${streamId}`, {
       params: {
-        communityId: communityId,
+        communityId,
       },
     });
 
@@ -159,7 +159,7 @@ test.describe('E2E Stream Management Flow', () => {
     console.log('Step 9: Verifying stream deletion...');
     const verifyDeleteResponse = await request.get(`/api/v1/streams/${streamId}`, {
       params: {
-        communityId: communityId,
+        communityId,
       },
     });
 
