@@ -34,7 +34,7 @@ describe('Streams API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
-      expect(response.body.error.message).toContain('communityId');
+      expect(response.body.error.message).toContain('Community ID');
     });
 
     it('should return 400 if title is missing', async () => {

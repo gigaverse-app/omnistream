@@ -15,19 +15,6 @@ describe('ChatServer', () => {
   let stream: any;
   let port: number;
 
-  beforeAll(() => {
-    // Create HTTP server for testing
-    server = http.createServer();
-    port = 3001 + Math.floor(Math.random() * 1000);
-    server.listen(port);
-  });
-
-  afterAll(async () => {
-    await new Promise<void>((resolve) => {
-      server.close(() => resolve());
-    });
-  });
-
   beforeEach(async () => {
     // Create test data
     community = await db.createCommunity('WebSocket Test Community');
@@ -39,36 +26,86 @@ describe('ChatServer', () => {
       platforms: [Platform.YOUTUBE],
     });
 
-    // Initialize chat server
-    chatServer = new ChatServer(server);
+    // Create a new HTTP server for each test to avoid port/WebSocket conflicts
+    server = http.createServer();
+    port = 3001 + Math.floor(Math.random() * 1000);
+    await new Promise<void>((resolve) => {
+      server.listen(port, () => resolve());
+    });
+
+    // Initialize chat server with polling disabled for faster tests
+    chatServer = new ChatServer(server, { enablePolling: false });
+    // Give server time to initialize
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
   afterEach(async () => {
-    chatServer.close();
-    // Give websocket server time to cleanup
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (chatServer) {
+      await chatServer.close();
+    }
+    if (server) {
+      await new Promise<void>((resolve) => {
+        server.close(() => resolve());
+      });
+    }
+    // Give time for cleanup
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
   const connectWebSocket = (): Promise<WebSocket> => {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(`ws://localhost:${port}/ws/chat`);
-      ws.on('open', () => resolve(ws));
-      ws.on('error', reject);
+      const timeout = setTimeout(() => {
+        ws.terminate();
+        reject(new Error('WebSocket connection timeout'));
+      }, 3000);
+
+      ws.on('open', () => {
+        clearTimeout(timeout);
+        resolve(ws);
+      });
+      ws.on('error', (err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
     });
   };
 
-  const waitForMessage = (ws: WebSocket): Promise<any> => {
-    return new Promise((resolve) => {
-      ws.once('message', (data) => {
+  const waitForMessage = (ws: WebSocket, timeoutMs = 3000): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('waitForMessage timeout'));
+      }, timeoutMs);
+
+      ws.once('message', (data: Buffer | string) => {
+        clearTimeout(timeout);
         resolve(JSON.parse(data.toString()));
       });
+    });
+  };
+
+  const closeWebSocket = (ws: WebSocket): Promise<void> => {
+    return new Promise((resolve) => {
+      if (ws.readyState === WebSocket.CLOSED) {
+        resolve();
+        return;
+      }
+      ws.once('close', () => resolve());
+      ws.close();
+      // Force close after 200ms
+      setTimeout(() => {
+        if (ws.readyState !== WebSocket.CLOSED) {
+          ws.terminate();
+        }
+        resolve();
+      }, 200);
     });
   };
 
   it('should accept WebSocket connections', async () => {
     const ws = await connectWebSocket();
     expect(ws.readyState).toBe(WebSocket.OPEN);
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should send welcome message on connection', async () => {
@@ -78,7 +115,7 @@ describe('ChatServer', () => {
     expect(message.type).toBe('connected');
     expect(message.message).toContain('Connected to Omnistream');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should require communityId for subscription', async () => {
@@ -96,7 +133,7 @@ describe('ChatServer', () => {
     expect(response.type).toBe('error');
     expect(response.message).toContain('communityId');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should reject invalid communityId', async () => {
@@ -115,7 +152,7 @@ describe('ChatServer', () => {
     expect(response.type).toBe('error');
     expect(response.message).toContain('Community not found');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should reject subscription to non-existent stream', async () => {
@@ -134,7 +171,7 @@ describe('ChatServer', () => {
     expect(response.type).toBe('error');
     expect(response.message).toContain('Stream not found');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should successfully subscribe to stream', async () => {
@@ -153,7 +190,7 @@ describe('ChatServer', () => {
     expect(response.type).toBe('subscribed');
     expect(response.streamId).toBe(stream.id);
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should broadcast new chat messages to subscribers', async () => {
@@ -183,7 +220,7 @@ describe('ChatServer', () => {
 
     // Note: In real implementation, this would be triggered by polling
     // For unit test, we're just verifying the subscription mechanism works
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should handle unsubscribe messages', async () => {
@@ -210,7 +247,7 @@ describe('ChatServer', () => {
     const response = await waitForMessage(ws);
     expect(response.type).toBe('unsubscribed');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should handle highlight requests', async () => {
@@ -251,7 +288,7 @@ describe('ChatServer', () => {
     const response = await waitForMessage(ws);
     expect(['highlighted', 'error']).toContain(response.type);
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should handle invalid message types', async () => {
@@ -267,7 +304,7 @@ describe('ChatServer', () => {
     const response = await waitForMessage(ws);
     expect(response.type).toBe('error');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should handle malformed JSON', async () => {
@@ -279,7 +316,7 @@ describe('ChatServer', () => {
     const response = await waitForMessage(ws);
     expect(response.type).toBe('error');
 
-    ws.close();
+    await closeWebSocket(ws);
   });
 
   it('should handle client disconnect gracefully', async () => {
@@ -296,10 +333,10 @@ describe('ChatServer', () => {
     await waitForMessage(ws); // Skip subscribed message
 
     // Close connection
-    ws.close();
+    await closeWebSocket(ws);
 
     // Wait a bit for cleanup
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Server should have cleaned up the subscription
     // (no assertion needed, just checking it doesn't crash)
@@ -335,7 +372,7 @@ describe('ChatServer', () => {
     expect(response1.type).toBe('subscribed');
     expect(response2.type).toBe('subscribed');
 
-    ws1.close();
-    ws2.close();
+    await closeWebSocket(ws1);
+    await closeWebSocket(ws2);
   });
 });

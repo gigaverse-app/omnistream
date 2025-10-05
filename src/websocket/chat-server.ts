@@ -20,8 +20,10 @@ export class ChatServer {
   private wss: WebSocketServer;
   private clients: Map<WebSocket, ChatClient> = new Map();
   private pollIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private enablePolling: boolean;
 
-  constructor(server: Server) {
+  constructor(server: Server, options?: { enablePolling?: boolean }) {
+    this.enablePolling = options?.enablePolling ?? true;
     this.wss = new WebSocketServer({ server, path: '/ws/chat' });
     this.setupWebSocketServer();
   }
@@ -29,6 +31,14 @@ export class ChatServer {
   private setupWebSocketServer(): void {
     this.wss.on('connection', (ws: WebSocket) => {
       logger.info('WebSocket client connected');
+
+      // Send welcome message
+      ws.send(
+        JSON.stringify({
+          type: 'connected',
+          message: 'Connected to Omnistream chat server',
+        })
+      );
 
       ws.on('message', async (data: string) => {
         try {
@@ -118,7 +128,7 @@ export class ChatServer {
       });
 
       // Start polling for this stream if not already polling
-      if (!this.pollIntervals.has(streamId)) {
+      if (this.enablePolling && !this.pollIntervals.has(streamId)) {
         this.startPolling(streamId, community.id);
       }
 
@@ -154,6 +164,12 @@ export class ChatServer {
       if (!hasOtherClients) {
         this.stopPolling(client.streamId);
       }
+
+      ws.send(
+        JSON.stringify({
+          type: 'unsubscribed',
+        })
+      );
 
       logger.info('Client unsubscribed from stream', { streamId: client.streamId });
     }
@@ -313,23 +329,27 @@ export class ChatServer {
     }
   }
 
-  close(): void {
-    // Stop all polling
-    for (const interval of this.pollIntervals.values()) {
-      clearInterval(interval);
-    }
-    this.pollIntervals.clear();
-
-    // Close all client connections first
-    for (const client of this.clients.values()) {
-      if (client.ws.readyState === WebSocket.OPEN) {
-        client.ws.close();
+  close(): Promise<void> {
+    return new Promise((resolve) => {
+      // Stop all polling
+      for (const interval of this.pollIntervals.values()) {
+        clearInterval(interval);
       }
-    }
-    this.clients.clear();
+      this.pollIntervals.clear();
 
-    // Close WebSocket server
-    this.wss.close();
-    logger.info('Chat server closed');
+      // Close all client connections first
+      for (const client of this.clients.values()) {
+        if (client.ws.readyState === WebSocket.OPEN || client.ws.readyState === WebSocket.CONNECTING) {
+          client.ws.close();
+        }
+      }
+      this.clients.clear();
+
+      // Close WebSocket server
+      this.wss.close(() => {
+        logger.info('Chat server closed');
+        resolve();
+      });
+    });
   }
 }

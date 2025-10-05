@@ -197,6 +197,15 @@ class Database {
     this.chatMessages.set(streamId, messages);
     return updated;
   }
+
+  // Test utilities
+  clearAll(): void {
+    this.communities.clear();
+    this.oauthTokens.clear();
+    this.streams.clear();
+    this.platformStreams.clear();
+    this.chatMessages.clear();
+  }
 }
 
 export const db = new Database();
