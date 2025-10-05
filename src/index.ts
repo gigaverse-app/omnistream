@@ -25,12 +25,20 @@ app.use(cors());
 app.use(express.json());
 app.use(rateLimit);
 
+// Serve static files from public directory
+app.use(express.static('public'));
+
 // Health check endpoint
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
   });
+});
+
+// Dashboard route
+app.get('/dashboard', (_req, res) => {
+  res.sendFile('dashboard.html', { root: 'public' });
 });
 
 // API routes

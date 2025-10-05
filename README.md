@@ -70,9 +70,30 @@ npm test
 
 # Run integration tests
 npm run test:integration
+
+# Run demos
+npm run demo:simple     # Automated API demo
+npm run demo            # Interactive streaming demo
 ```
 
 The server will start on `http://localhost:3000` by default.
+
+### 🌐 Web Dashboard
+
+Access the browser-based admin dashboard at:
+```
+http://localhost:3000/dashboard
+```
+
+The dashboard provides a complete UI for:
+- Creating communities and managing API keys
+- OAuth authorization for YouTube and Facebook
+- Creating and managing multi-platform streams
+- Starting/stopping streams with visual controls
+- Viewing RTMP credentials
+- Real-time chat monitoring via WebSocket
+
+See `public/README.md` for detailed dashboard documentation.
 
 ## 📡 API Documentation
 
