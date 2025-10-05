@@ -13,7 +13,15 @@ export default {
       },
     ],
   },
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.test.ts', '!src/**/*.spec.ts', '!src/types/**'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    'demo/**/*.ts',
+    '!src/**/*.test.ts',
+    '!src/**/*.spec.ts',
+    '!src/types/**',
+    '!demo/**/*.test.ts',
+    '!demo/**/*.spec.ts',
+  ],
   coverageThreshold: {
     global: {
       branches: 35,
@@ -22,8 +30,14 @@ export default {
       statements: 45,
     },
   },
-  testMatch: ['**/__tests__/unit/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
+  testMatch: [
+    '**/__tests__/unit/**/*.test.ts',
+    '**/?(*.)+(spec|test).ts',
+    'demo/**/*.test.ts',
+    'examples/**/tests/**/*.test.{ts,js}',
+  ],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/__tests__/integration/'],
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testTimeout: 10000,
   forceExit: true,
   detectOpenHandles: false,

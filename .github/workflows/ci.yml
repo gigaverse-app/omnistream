@@ -55,8 +55,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm test -- --testPathIgnorePatterns="/websocket/|/integration/" --coverage
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Install web-dashboard dependencies
+        run: cd examples/web-dashboard && npm ci
+
+      - name: Run all tests (unit, integration, examples)
+        run: npm run test:all
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
