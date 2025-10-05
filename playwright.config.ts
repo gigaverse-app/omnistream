@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './src/__tests__/integration',
-  timeout: 30000,
+  timeout: 10000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -13,7 +13,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'npm run dev',
+    command: 'NODE_ENV=test npm run dev',
     url: 'http://localhost:3000/health',
     reuseExistingServer: true,
     timeout: 15000,

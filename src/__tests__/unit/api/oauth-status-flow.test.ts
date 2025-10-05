@@ -5,11 +5,11 @@
 
 import request from 'supertest';
 import express from 'express';
-import communitiesRouter from '../../api/routes/communities.js';
-import authRouter from '../../api/routes/auth.js';
-import { errorHandler } from '../../api/middleware/error-handler.js';
-import { db } from '../../database/index.js';
-import { Platform } from '../../core/interfaces.js';
+import communitiesRouter from '../../../api/routes/communities.js';
+import authRouter from '../../../api/routes/auth.js';
+import { errorHandler } from '../../../api/middleware/error-handler.js';
+import { db } from '../../../database/index.js';
+import { Platform } from '../../../core/interfaces.js';
 
 // Mock axios for OAuth token exchanges
 jest.mock('axios');

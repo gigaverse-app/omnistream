@@ -2,7 +2,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests',
-  timeout: 30000,
+  timeout: 10000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -23,16 +23,16 @@ module.exports = defineConfig({
 
   webServer: [
     {
-      command: 'cd ../.. && npm run dev',
+      command: 'cd ../.. && NODE_ENV=test npm run dev',
       url: 'http://localhost:3000/health',
       reuseExistingServer: !process.env.CI,
-      timeout: 120000,
+      timeout: 15000,
     },
     {
       command: 'npm start',
       url: 'http://localhost:4000',
       reuseExistingServer: !process.env.CI,
-      timeout: 60000,
+      timeout: 15000,
     },
   ],
 });

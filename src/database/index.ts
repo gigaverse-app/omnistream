@@ -7,6 +7,7 @@ import {
   ChatMessage,
   Community,
   CommunityOAuthTokens,
+  OAuthToken,
   Platform,
   PlatformStream,
   StreamConfig,
@@ -53,11 +54,7 @@ class Database {
     this.oauthTokens.set(key, { ...tokens, updatedAt: new Date() });
   }
 
-  async saveOAuthToken(
-    communityId: string,
-    platform: Platform,
-    tokens: Record<string, unknown>
-  ): Promise<void> {
+  async saveOAuthToken(communityId: string, platform: Platform, tokens: OAuthToken): Promise<void> {
     await this.saveOAuthTokens({
       communityId,
       platform,
@@ -75,10 +72,7 @@ class Database {
     return tokens;
   }
 
-  async getOAuthToken(
-    communityId: string,
-    platform: Platform
-  ): Promise<Record<string, unknown> | null> {
+  async getOAuthToken(communityId: string, platform: Platform): Promise<OAuthToken | null> {
     try {
       const tokenData = await this.getOAuthTokens(communityId, platform);
       return tokenData.tokens;

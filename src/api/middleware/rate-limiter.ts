@@ -77,6 +77,12 @@ class RateLimiter {
 const rateLimiter = new RateLimiter(config.rateLimit.windowMs, config.rateLimit.maxRequests);
 
 export function rateLimit(req: Request, res: Response, next: NextFunction): void {
+  // Skip rate limiting in test environment
+  if (process.env.NODE_ENV === 'test') {
+    next();
+    return;
+  }
+
   // Use API key or IP address as identifier
   const identifier = (req.headers['x-api-key'] as string) || req.ip || 'unknown';
 

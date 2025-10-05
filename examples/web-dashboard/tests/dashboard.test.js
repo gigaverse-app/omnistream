@@ -2,7 +2,6 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Omnistream Web Dashboard E2E Tests', () => {
   let communityName;
-  let apiKey;
   let communityId;
 
   test.beforeEach(async ({ page }) => {
@@ -30,12 +29,16 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     // Click create button
     await page.click('button:has-text("Create Community")');
 
-    // Wait for success message
-    await expect(page.locator('#auth-status')).toContainText(/created/i);
-    await expect(page.locator('#auth-status')).toHaveClass(/success/);
+    // Wait for either profile section to appear OR an error message
+    const profileOrError = await Promise.race([
+      page.waitForSelector('#profile-section', { state: 'visible' }).then(() => 'profile'),
+      page.waitForSelector('#auth-status.error', { state: 'visible' }).then(() => 'error'),
+    ]);
 
-    // Wait for profile section to appear
-    await page.waitForSelector('#profile-section', { state: 'visible', timeout: 5000 });
+    if (profileOrError === 'error') {
+      const errorText = await page.locator('#auth-status').textContent();
+      throw new Error(`Community creation failed: ${errorText}`);
+    }
 
     // Verify we're logged in
     await expect(page.locator('#profile-section')).toBeVisible();
@@ -44,14 +47,14 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     // Verify community name is displayed
     await expect(page.locator('#profile-name')).toContainText(communityName);
 
-    // Verify API key is displayed
-    const apikeyElement = page.locator('#profile-apikey');
-    await expect(apikeyElement).toBeVisible();
-    const apiKeyText = await apikeyElement.textContent();
-    expect(apiKeyText).toMatch(/^omni_/);
-
-    // Save for next tests
-    apiKey = apiKeyText;
+    // Verify Community ID is displayed
+    const communityIdElement = page.locator('#profile-id');
+    await expect(communityIdElement).toBeVisible();
+    const communityIdText = await communityIdElement.textContent();
+    // Community ID should be a UUID
+    expect(communityIdText).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
   });
 
   test('should show platforms section after login', async ({ page }) => {

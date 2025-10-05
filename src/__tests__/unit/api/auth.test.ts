@@ -292,7 +292,6 @@ describe('Auth API Routes', () => {
     it('should successfully revoke Facebook authorization', async () => {
       await db.saveOAuthToken(community.id, Platform.FACEBOOK, {
         accessToken: 'fb-token',
-        refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
         scope: ['pages_read_engagement'],
       });
