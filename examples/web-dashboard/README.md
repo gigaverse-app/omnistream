@@ -5,12 +5,14 @@ An interactive web-based demo application showcasing Omnistream's multi-platform
 ## ✨ Features
 
 ### 🔐 Community Management
+
 - Create communities with auto-generated API keys
 - Login with existing API keys
 - Secure API key generation
 - Community profile management
 
 ### 🌐 OAuth Platform Integration
+
 - **YouTube** - Connect and stream to YouTube Live
 - **Facebook** - Stream to Facebook Live
 - **TikTok** - Stream to TikTok Live (requires LIVE Access API approval)
@@ -18,6 +20,7 @@ An interactive web-based demo application showcasing Omnistream's multi-platform
 - One-click OAuth flow
 
 ### 📺 Stream Management
+
 - Create multi-platform streams
 - Configure stream title and description
 - Select target platforms for simultaneous streaming
@@ -25,6 +28,7 @@ An interactive web-based demo application showcasing Omnistream's multi-platform
 - Live stream status indicators
 
 ### ⚡ Real-Time Controls
+
 - Start/Stop streams with one click
 - Auto-refresh stream status every 5 seconds
 - Stream health monitoring
@@ -33,6 +37,7 @@ An interactive web-based demo application showcasing Omnistream's multi-platform
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 16+ installed
 - Omnistream API server must be running first
 
@@ -57,12 +62,6 @@ npm run build            # Build TypeScript first
 npm start               # Then start server
 ```
 
-**Windows PowerShell:**
-```powershell
-cd C:\path\to\omnistream
-npm install
-npm run dev
-```
 
 **Step 2: Start the Web Dashboard**
 
@@ -79,14 +78,8 @@ npm install
 npm start
 ```
 
-**Windows PowerShell:**
-```powershell
-cd examples\web-dashboard
-npm install
-npm start
-```
-
 **Step 3: Open in Browser**
+
 ```
 http://localhost:4000
 ```
@@ -94,36 +87,43 @@ http://localhost:4000
 ### Troubleshooting
 
 **Error: "Failed to fetch" / CORS errors**
+
 - Ensure Omnistream API is running on http://localhost:3000
 - Check terminal 1 shows: `Server running on port 3000`
 
 **Error: Dashboard won't start**
+
 - Port 4000 might be in use, change `DASHBOARD_PORT` in `.env`
 - Ensure dependencies installed: `npm install`
 
 **Error: "Cannot find module dist/index.js" in main server**
+
 - You forgot to build! Run: `npm run build` OR use `npm run dev`
 
 ## 📖 How to Use
 
 ### Step 1: Create a Community
+
 1. Navigate to the dashboard in your browser
 2. Enter a community name (e.g., "Gigaverse Gaming")
 3. Click "Create Community"
 4. Your API key will be automatically generated and saved
 
 **Or** if you already have an API key:
+
 1. Click on "Use Existing API Key"
 2. Paste your API key
 3. Click "Login"
 
 ### Step 2: Connect Platforms
+
 1. After creating/logging into your community, scroll to "Connect Streaming Platforms"
 2. Click "Connect YouTube" (or Facebook/TikTok)
 3. Complete the OAuth flow in the popup window
 4. The platform will show as "Connected" ✓
 
 ### Step 3: Create a Stream
+
 1. In the "Stream Management" section, enter:
    - Stream Title (e.g., "Gigaverse Launch Event")
    - Stream Description (optional)
@@ -132,12 +132,14 @@ http://localhost:4000
 3. Your stream is created! Copy the RTMP ingest URL and stream key
 
 ### Step 4: Start Streaming
+
 1. Click "▶ Start Stream" button
 2. Stream status changes to "🔴 LIVE"
 3. Use the RTMP ingest URL and stream key in your streaming software (OBS, etc.)
 4. Your stream goes live on all selected platforms simultaneously!
 
 ### Step 5: Monitor & Control
+
 - Watch the real-time status updates
 - Click "⏹ Stop Stream" to end the broadcast
 - Use "🔄 Refresh" to manually update stream info
@@ -146,18 +148,22 @@ http://localhost:4000
 ## 🎯 Demo Scenarios for Colleagues
 
 ### Scenario 1: Multi-Platform Reach
+
 **Show:** Create a single stream targeting YouTube, Facebook, and TikTok simultaneously
 **Highlight:** "One API call, three platforms. Imagine the reach for Gigaverse events!"
 
 ### Scenario 2: Easy OAuth
+
 **Show:** Connect a YouTube account with 2 clicks
 **Highlight:** "No complex OAuth implementation needed. Omnistream handles it all."
 
 ### Scenario 3: Stream Management
+
 **Show:** Start/stop streams, view ingest URLs
 **Highlight:** "Full programmatic control. Perfect for automated metaverse events."
 
 ### Scenario 4: Real-Time Status
+
 **Show:** Live status updates and health monitoring
 **Highlight:** "Know exactly when your stream is live across all platforms."
 
@@ -188,6 +194,7 @@ See the main [Omnistream README](../../README.md) for server setup details.
 ## 🏗️ Architecture
 
 ### Tech Stack
+
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
 - **Backend:** Express.js (proxy server)
 - **Template Engine:** EJS
@@ -195,6 +202,7 @@ See the main [Omnistream README](../../README.md) for server setup details.
 - **Styling:** Custom CSS with CSS Grid & Flexbox
 
 ### File Structure
+
 ```
 web-dashboard/
 ├── server.js              # Express server & API proxy
@@ -215,7 +223,9 @@ web-dashboard/
 ```
 
 ### API Proxy Pattern
+
 The dashboard acts as a proxy to avoid CORS issues:
+
 ```
 Browser → Dashboard Server → Omnistream API
 ```
@@ -248,6 +258,7 @@ The web dashboard includes comprehensive test coverage to ensure everything work
 ### Automated Tests
 
 #### 1. Bash API Test Script
+
 Tests all API endpoints and verifies the dashboard backend works correctly:
 
 ```bash
@@ -255,6 +266,7 @@ Tests all API endpoints and verifies the dashboard backend works correctly:
 ```
 
 **What it tests:**
+
 - Server health checks
 - Community creation
 - API key authentication
@@ -264,11 +276,13 @@ Tests all API endpoints and verifies the dashboard backend works correctly:
 - Error handling
 
 **Expected output:**
+
 ```
 ✓ All 12 tests passed!
 ```
 
 #### 2. Playwright E2E Tests
+
 Tests the complete user interface and user workflows:
 
 ```bash
@@ -276,6 +290,7 @@ npm test
 ```
 
 **What it tests:**
+
 - Homepage loads correctly
 - Community creation flow
 - Login with API key
@@ -287,6 +302,7 @@ npm test
 - Error states
 
 **Expected output:**
+
 ```
 16 passed (18.8s)
 ```
@@ -294,6 +310,7 @@ npm test
 ### Running Tests
 
 1. **Start both servers:**
+
    ```bash
    # Terminal 1: Start Omnistream API
    cd /workspaces/omnistream
@@ -305,16 +322,19 @@ npm test
    ```
 
 2. **Run bash tests:**
+
    ```bash
    ./test-dashboard.sh
    ```
 
 3. **Run Playwright tests:**
+
    ```bash
    npm test
    ```
 
 4. **Run Playwright tests with UI (for debugging):**
+
    ```bash
    npm run test:ui
    ```
@@ -327,6 +347,7 @@ npm test
 ### Test Results
 
 After running tests, you can view:
+
 - **Bash test output**: Displays in terminal with ✓/✗ indicators
 - **Playwright HTML report**: Run `npm run test:report` to view detailed results
 - **Screenshots**: Test failures include automatic screenshots in `test-results/`
@@ -351,20 +372,24 @@ npm test
 ## 🐛 Troubleshooting
 
 ### Dashboard won't start
+
 - Ensure port 4000 is available (or change DASHBOARD_PORT)
 - Check that dependencies are installed (`npm install`)
 
 ### Can't connect to Omnistream API
+
 - Verify Omnistream server is running on port 3000
 - Check OMNISTREAM_API_URL environment variable
 - Ensure database is configured and migrations are run
 
 ### OAuth not working
+
 - Verify OAuth credentials in Omnistream .env file
 - Check redirect URIs match in platform developer consoles
 - Ensure popup blockers are disabled
 
 ### Streams not appearing
+
 - Check that you're logged in
 - Verify API key is valid (check browser console)
 - Ensure at least one platform is connected
@@ -378,6 +403,7 @@ npm test
 ## 🤝 Support
 
 For issues or questions:
+
 - Check the [main Omnistream repository](../../)
 - Review API logs for debugging
 - Inspect browser console for frontend errors

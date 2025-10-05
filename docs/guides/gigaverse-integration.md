@@ -142,15 +142,18 @@ pm2 start dist/index.js --name omnistream
 **Step 1**: Go to [Google Cloud Console](https://console.cloud.google.com/)
 
 **Step 2**: Create a new project or select existing
+
 - Click "Select a project" → "New Project"
 - Name: "Gigaverse Omnistream"
 
 **Step 3**: Enable YouTube Data API v3
+
 - Go to "APIs & Services" → "Library"
 - Search for "YouTube Data API v3"
 - Click "Enable"
 
 **Step 4**: Create OAuth 2.0 Credentials
+
 - Go to "APIs & Services" → "Credentials"
 - Click "Create Credentials" → "OAuth client ID"
 - Application type: "Web application"
@@ -160,10 +163,12 @@ pm2 start dist/index.js --name omnistream
   - `http://localhost:3000/api/v1/auth/youtube/callback` (for development)
 
 **Step 5**: Copy credentials
+
 - Copy the **Client ID** → Put in `YOUTUBE_CLIENT_ID`
 - Copy the **Client Secret** → Put in `YOUTUBE_CLIENT_SECRET`
 
 **Required Scopes** (already configured in code):
+
 - `https://www.googleapis.com/auth/youtube.force-ssl`
 - `https://www.googleapis.com/auth/youtube.readonly`
 
@@ -174,27 +179,32 @@ pm2 start dist/index.js --name omnistream
 **Step 1**: Go to [Facebook for Developers](https://developers.facebook.com/)
 
 **Step 2**: Create a new app
+
 - Click "My Apps" → "Create App"
 - Use case: "Other"
 - App type: "Business"
 - Display name: "Gigaverse Omnistream"
 
 **Step 3**: Add Facebook Login product
+
 - From app dashboard, click "Add Product"
 - Find "Facebook Login" → Click "Set Up"
 
 **Step 4**: Configure OAuth redirect URIs
+
 - Go to "Facebook Login" → "Settings"
 - Valid OAuth Redirect URIs:
   - `https://omnistream.gigaverse.com/api/v1/auth/facebook/callback`
   - `http://localhost:3000/api/v1/auth/facebook/callback`
 
 **Step 5**: Get App ID and Secret
+
 - Go to "Settings" → "Basic"
 - Copy **App ID** → Put in `FACEBOOK_APP_ID`
 - Copy **App Secret** → Put in `FACEBOOK_APP_SECRET`
 
 **Step 6**: Request Advanced Access (for production)
+
 - Go to "App Review" → "Permissions and Features"
 - Request access for:
   - `pages_manage_posts` (required)
@@ -202,6 +212,7 @@ pm2 start dist/index.js --name omnistream
   - `pages_manage_engagement` (for chat)
 
 **Important Notes**:
+
 - Your app starts in "Development Mode" - only admins/developers/testers can use it
 - You need to submit for "App Review" to make it public
 - Users must have a Facebook Page to stream (personal profiles can't go live via API)
@@ -213,23 +224,28 @@ pm2 start dist/index.js --name omnistream
 **⚠️ Important**: TikTok LIVE Access API requires special approval and is not generally available.
 
 **Step 1**: Apply for API access
+
 - Go to [TikTok for Developers](https://developers.tiktok.com/)
 - Register as a developer
 - Apply for LIVE Access API access
 
 **Step 2**: Create an app (after approval)
+
 - Create a new application
 - Select "LIVE Access" product
 
 **Step 3**: Configure redirect URI
+
 - In app settings, add redirect URI:
   - `https://omnistream.gigaverse.com/api/v1/auth/tiktok/callback`
 
 **Step 4**: Get credentials
+
 - Copy **Client Key** → Put in `TIKTOK_CLIENT_KEY`
 - Copy **Client Secret** → Put in `TIKTOK_CLIENT_SECRET`
 
 **Required Scopes**:
+
 - `live.room.info`
 - `live.room.manage`
 
@@ -242,6 +258,7 @@ pm2 start dist/index.js --name omnistream
 **⚠️ Status**: Instagram does not provide a public API for live streaming.
 
 **Current Options**:
+
 1. **Instagram Live API** - Only available to select partners (e.g., StreamYard, Restream)
 2. **Third-party streaming tools** - Use RTMP ingest via unofficial methods (not recommended for production)
 3. **Manual streaming** - Users can stream via Instagram app using RTMP URL from Gigaverse
@@ -370,7 +387,7 @@ app.post('/api/communities/:communityId/platforms/:platform/disconnect', async (
 
   // Update your database
   await db.updateCommunity(communityId, {
-    connected_platforms: community.connected_platforms.filter(p => p !== platform),
+    connected_platforms: community.connected_platforms.filter((p) => p !== platform),
   });
 
   res.json({ success: true });
@@ -393,23 +410,20 @@ app.post('/api/streams/create', async (req, res) => {
   const rtmpKey = generateStreamKey(); // Your implementation
 
   // Create stream in Omnistream
-  const omnistreamResponse = await fetch(
-    'https://omnistream.gigaverse.com/api/v1/streams',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': community.omnistream_api_key,
-      },
-      body: JSON.stringify({
-        title,
-        description,
-        rtmpUrl,
-        rtmpKey,
-        platforms, // ['youtube', 'facebook']
-      }),
-    }
-  );
+  const omnistreamResponse = await fetch('https://omnistream.gigaverse.com/api/v1/streams', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': community.omnistream_api_key,
+    },
+    body: JSON.stringify({
+      title,
+      description,
+      rtmpUrl,
+      rtmpKey,
+      platforms, // ['youtube', 'facebook']
+    }),
+  });
 
   const { data } = await omnistreamResponse.json();
 
@@ -572,19 +586,13 @@ function PlatformConnections({ communityId }: { communityId: string }) {
     const { authUrl } = await response.json();
 
     // 2. Open OAuth in popup
-    const popup = window.open(
-      authUrl,
-      'oauth',
-      'width=600,height=700,scrollbars=yes'
-    );
+    const popup = window.open(authUrl, 'oauth', 'width=600,height=700,scrollbars=yes');
 
     // 3. Listen for success message
     const messageHandler = (event: MessageEvent) => {
       if (event.data.type === 'oauth-success' && event.data.platform === platformId) {
         // Update UI
-        setPlatforms(platforms.map(p =>
-          p.id === platformId ? { ...p, connected: true } : p
-        ));
+        setPlatforms(platforms.map((p) => (p.id === platformId ? { ...p, connected: true } : p)));
 
         // Close popup
         popup?.close();
@@ -604,26 +612,20 @@ function PlatformConnections({ communityId }: { communityId: string }) {
       method: 'POST',
     });
 
-    setPlatforms(platforms.map(p =>
-      p.id === platformId ? { ...p, connected: false } : p
-    ));
+    setPlatforms(platforms.map((p) => (p.id === platformId ? { ...p, connected: false } : p)));
   };
 
   return (
     <div className="platform-connections">
       <h2>Connected Platforms</h2>
-      {platforms.map(platform => (
+      {platforms.map((platform) => (
         <div key={platform.id} className="platform-card">
           <img src={platform.icon} alt={platform.name} />
           <h3>{platform.name}</h3>
           {platform.connected ? (
-            <button onClick={() => handleDisconnect(platform.id)}>
-              Disconnect
-            </button>
+            <button onClick={() => handleDisconnect(platform.id)}>Disconnect</button>
           ) : (
-            <button onClick={() => handleConnect(platform.id)}>
-              Connect
-            </button>
+            <button onClick={() => handleConnect(platform.id)}>Connect</button>
           )}
         </div>
       ))}
@@ -705,23 +707,23 @@ function StreamCreator({ communityId }: { communityId: string }) {
         type="text"
         placeholder="Stream title"
         value={formData.title}
-        onChange={e => setFormData({ ...formData, title: e.target.value })}
+        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
       />
 
       <textarea
         placeholder="Description"
         value={formData.description}
-        onChange={e => setFormData({ ...formData, description: e.target.value })}
+        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
       />
 
       <div className="platform-selector">
         <h3>Select Platforms</h3>
-        {['youtube', 'facebook', 'tiktok'].map(platform => (
+        {['youtube', 'facebook', 'tiktok'].map((platform) => (
           <label key={platform}>
             <input
               type="checkbox"
               checked={formData.platforms.includes(platform)}
-              onChange={e => {
+              onChange={(e) => {
                 if (e.target.checked) {
                   setFormData({
                     ...formData,
@@ -730,7 +732,7 @@ function StreamCreator({ communityId }: { communityId: string }) {
                 } else {
                   setFormData({
                     ...formData,
-                    platforms: formData.platforms.filter(p => p !== platform),
+                    platforms: formData.platforms.filter((p) => p !== platform),
                   });
                 }
               }}
@@ -741,22 +743,17 @@ function StreamCreator({ communityId }: { communityId: string }) {
       </div>
 
       {!streamInfo && (
-        <button onClick={handleCreateStream} disabled={!formData.title || formData.platforms.length === 0}>
+        <button
+          onClick={handleCreateStream}
+          disabled={!formData.title || formData.platforms.length === 0}
+        >
           Create Stream
         </button>
       )}
 
-      {streamInfo && !isLive && (
-        <button onClick={handleGoLive}>
-          Go Live!
-        </button>
-      )}
+      {streamInfo && !isLive && <button onClick={handleGoLive}>Go Live!</button>}
 
-      {isLive && (
-        <button onClick={handleEndStream}>
-          End Stream
-        </button>
-      )}
+      {isLive && <button onClick={handleEndStream}>End Stream</button>}
 
       {streamInfo && (
         <div className="stream-links">
@@ -800,23 +797,23 @@ function LiveChat({ streamId, apiKey }: { streamId: string; apiKey: string }) {
 
     websocket.onopen = () => {
       // Subscribe to stream
-      websocket.send(JSON.stringify({
-        type: 'subscribe',
-        streamId,
-        apiKey,
-      }));
+      websocket.send(
+        JSON.stringify({
+          type: 'subscribe',
+          streamId,
+          apiKey,
+        })
+      );
     };
 
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       if (data.type === 'message') {
-        setMessages(prev => [...prev, data.message]);
+        setMessages((prev) => [...prev, data.message]);
       } else if (data.type === 'messageHighlighted') {
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.id === data.messageId ? { ...msg, highlighted: true } : msg
-          )
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === data.messageId ? { ...msg, highlighted: true } : msg))
         );
       }
     };
@@ -835,25 +832,22 @@ function LiveChat({ streamId, apiKey }: { streamId: string; apiKey: string }) {
   }, [streamId, apiKey]);
 
   const handleHighlight = (messageId: string, platform: string) => {
-    ws?.send(JSON.stringify({
-      type: 'highlight',
-      messageId,
-      platform,
-    }));
+    ws?.send(
+      JSON.stringify({
+        type: 'highlight',
+        messageId,
+        platform,
+      })
+    );
   };
 
   return (
     <div className="live-chat">
       <h3>Live Chat</h3>
       <div className="messages">
-        {messages.map(msg => (
-          <div
-            key={msg.id}
-            className={`message ${msg.highlighted ? 'highlighted' : ''}`}
-          >
-            {msg.authorImageUrl && (
-              <img src={msg.authorImageUrl} alt={msg.authorName} />
-            )}
+        {messages.map((msg) => (
+          <div key={msg.id} className={`message ${msg.highlighted ? 'highlighted' : ''}`}>
+            {msg.authorImageUrl && <img src={msg.authorImageUrl} alt={msg.authorName} />}
             <div className="content">
               <div className="header">
                 <span className="author">{msg.authorName}</span>
@@ -861,9 +855,7 @@ function LiveChat({ streamId, apiKey }: { streamId: string; apiKey: string }) {
               </div>
               <p>{msg.message}</p>
             </div>
-            <button onClick={() => handleHighlight(msg.id, msg.platform)}>
-              ⭐ Highlight
-            </button>
+            <button onClick={() => handleHighlight(msg.id, msg.platform)}>⭐ Highlight</button>
           </div>
         ))}
       </div>
@@ -879,6 +871,7 @@ function LiveChat({ streamId, apiKey }: { streamId: string; apiKey: string }) {
 ### How OAuth Works for Each Platform
 
 OAuth is a "dance" between 4 parties:
+
 1. **User** (Gigaverse community owner)
 2. **Your App** (Gigaverse frontend)
 3. **Omnistream** (Your middleware)
@@ -940,6 +933,7 @@ Here's the step-by-step flow:
 ### Where Credentials Live
 
 #### Omnistream Server (.env file)
+
 ```bash
 # YouTube OAuth Application Credentials
 YOUTUBE_CLIENT_ID=123456.apps.googleusercontent.com
@@ -950,6 +944,7 @@ YOUTUBE_CLIENT_SECRET=secret_abc123
 ```
 
 #### Omnistream Database
+
 ```
 community_oauth_tokens table:
 ┌──────────────┬──────────┬──────────────┬───────────────┬────────────┐
@@ -965,6 +960,7 @@ community_oauth_tokens table:
 ```
 
 #### Gigaverse Database
+
 ```sql
 -- You only store:
 communities table:
@@ -1051,7 +1047,7 @@ async function fullStreamLifecycle() {
   await startStream(stream.id);
 
   console.log('Now live on:');
-  stream.platformStreams.forEach(ps => {
+  stream.platformStreams.forEach((ps) => {
     console.log(`- ${ps.platform}: ${ps.streamUrl}`);
   });
 
@@ -1062,11 +1058,14 @@ async function fullStreamLifecycle() {
   });
 
   // 7. End stream after 1 hour
-  setTimeout(async () => {
-    await stopStream(stream.id);
-    chat.disconnect();
-    console.log('Stream ended');
-  }, 60 * 60 * 1000);
+  setTimeout(
+    async () => {
+      await stopStream(stream.id);
+      chat.disconnect();
+      console.log('Stream ended');
+    },
+    60 * 60 * 1000
+  );
 }
 ```
 
@@ -1100,8 +1099,14 @@ async function handleMultipleCommunities() {
   });
 
   // Both streams use DIFFERENT YouTube accounts (based on OAuth)
-  console.log('Stream A YouTube:', streamA.platformStreams.find(p => p.platform === 'youtube').streamUrl);
-  console.log('Stream B YouTube:', streamB.platformStreams.find(p => p.platform === 'youtube').streamUrl);
+  console.log(
+    'Stream A YouTube:',
+    streamA.platformStreams.find((p) => p.platform === 'youtube').streamUrl
+  );
+  console.log(
+    'Stream B YouTube:',
+    streamB.platformStreams.find((p) => p.platform === 'youtube').streamUrl
+  );
   // These will be different YouTube channels!
 }
 ```
@@ -1113,6 +1118,7 @@ async function handleMultipleCommunities() {
 ### 1. API Key Storage
 
 **❌ Never do this**:
+
 ```typescript
 // DON'T expose API key in frontend code
 const apiKey = 'omni_abc123...';
@@ -1122,6 +1128,7 @@ fetch('https://omnistream.com/api/v1/streams', {
 ```
 
 **✅ Do this instead**:
+
 ```typescript
 // Frontend calls your backend
 const response = await fetch('/api/streams/create', {
@@ -1143,6 +1150,7 @@ app.post('/api/streams/create', async (req, res) => {
 ### 2. HTTPS/TLS
 
 **Production Requirements**:
+
 - Deploy Omnistream behind HTTPS (use Let's Encrypt, Cloudflare, or AWS Certificate Manager)
 - OAuth redirect URIs MUST use `https://` in production
 - WebSocket connections should use `wss://` (not `ws://`)
@@ -1161,7 +1169,7 @@ let cacheTime = 0;
 async function getStreamStatusCached(streamId: string) {
   const now = Date.now();
 
-  if (cachedStatus && (now - cacheTime) < CACHE_TTL) {
+  if (cachedStatus && now - cacheTime < CACHE_TTL) {
     return cachedStatus;
   }
 
@@ -1186,7 +1194,7 @@ async function createStreamWithFallback(data: CreateStreamRequest) {
       // Retry without YouTube
       return await createStream({
         ...data,
-        platforms: data.platforms.filter(p => p !== 'youtube'),
+        platforms: data.platforms.filter((p) => p !== 'youtube'),
       });
     }
 
@@ -1280,21 +1288,21 @@ spec:
         app: omnistream
     spec:
       containers:
-      - name: omnistream
-        image: yourdockerhub/omnistream:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: omnistream-secrets
-              key: database-url
-        - name: YOUTUBE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: omnistream-secrets
-              key: youtube-client-secret
+        - name: omnistream
+          image: yourdockerhub/omnistream:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: omnistream-secrets
+                  key: database-url
+            - name: YOUTUBE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: omnistream-secrets
+                  key: youtube-client-secret
 ```
 
 ### 2. Database Migration
@@ -1409,11 +1417,13 @@ api_requests_total ${totalRequests}
 ### 4. Scaling Considerations
 
 **Horizontal Scaling**:
+
 - Deploy multiple Omnistream instances behind a load balancer
 - Use Redis for session storage (WebSocket subscriptions)
 - Use message queue (Redis Pub/Sub or RabbitMQ) for chat broadcasting
 
 **Vertical Scaling**:
+
 - Current implementation can handle ~100 concurrent streams per instance
 - Each WebSocket connection uses ~1MB memory
 - Database queries are optimized with indexes
@@ -1566,17 +1576,17 @@ See complete API documentation in `README.md` and `FRONTEND_INTEGRATION.md`.
 
 ### Key Endpoints Summary
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/communities` | POST | Create community |
-| `/api/v1/auth/:platform/authorize` | GET | Get OAuth URL |
-| `/api/v1/auth/:platform/callback` | GET | OAuth callback |
-| `/api/v1/auth/:platform` | DELETE | Revoke OAuth |
-| `/api/v1/streams` | POST | Create stream |
-| `/api/v1/streams/:id/start` | POST | Start stream |
-| `/api/v1/streams/:id/stop` | POST | Stop stream |
-| `/api/v1/streams/:id` | GET | Get stream status |
-| `/ws/chat` | WebSocket | Real-time chat |
+| Endpoint                           | Method    | Purpose           |
+| ---------------------------------- | --------- | ----------------- |
+| `/api/v1/communities`              | POST      | Create community  |
+| `/api/v1/auth/:platform/authorize` | GET       | Get OAuth URL     |
+| `/api/v1/auth/:platform/callback`  | GET       | OAuth callback    |
+| `/api/v1/auth/:platform`           | DELETE    | Revoke OAuth      |
+| `/api/v1/streams`                  | POST      | Create stream     |
+| `/api/v1/streams/:id/start`        | POST      | Start stream      |
+| `/api/v1/streams/:id/stop`         | POST      | Stop stream       |
+| `/api/v1/streams/:id`              | GET       | Get stream status |
+| `/ws/chat`                         | WebSocket | Real-time chat    |
 
 ---
 

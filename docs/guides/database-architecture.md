@@ -7,6 +7,7 @@
 The application currently uses an **in-memory database** implemented as JavaScript Maps in `src/database/index.ts`. The following data is stored:
 
 #### 1. **Communities**
+
 - `id` (UUID)
 - `name` (string)
 - `apiKey` (string, format: `omni_<64-char-hex>`)
@@ -16,6 +17,7 @@ The application currently uses an **in-memory database** implemented as JavaScri
 **Purpose**: Represents organizations/users using Omnistream. Each community gets an API key for authentication.
 
 #### 2. **OAuth Tokens** (Community-specific)
+
 - `communityId` (foreign key to Community)
 - `platform` (enum: youtube, facebook, tiktok)
 - `tokens` (object containing):
@@ -28,6 +30,7 @@ The application currently uses an **in-memory database** implemented as JavaScri
 **Purpose**: Stores OAuth credentials for each platform per community. Required to create/manage streams on platforms.
 
 #### 3. **Stream Configurations**
+
 - `id` (UUID)
 - `communityId` (foreign key to Community)
 - `title` (string)
@@ -42,6 +45,7 @@ The application currently uses an **in-memory database** implemented as JavaScri
 **Purpose**: Central stream configuration that defines how a stream should be distributed across platforms.
 
 #### 4. **Platform Streams** (Per-stream, per-platform)
+
 - `platform` (enum: youtube, facebook, tiktok)
 - `platformStreamId` (string) - ID from the platform (e.g., YouTube broadcast ID)
 - `status` (enum: idle, starting, live, stopping, error)
@@ -52,6 +56,7 @@ The application currently uses an **in-memory database** implemented as JavaScri
 **Purpose**: Tracks the status of each stream on each platform. Links Omnistream streams to platform-specific streams.
 
 #### 5. **Chat Messages**
+
 - `id` (UUID)
 - `streamId` (foreign key to StreamConfig)
 - `platform` (enum: youtube, facebook, tiktok)
@@ -178,11 +183,13 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
 ### Option 2: Migration Steps
 
 1. **Install PostgreSQL Client**
+
    ```bash
    npm install pg @types/pg
    ```
 
 2. **Create Database Adapter Interface**
+
    ```typescript
    // src/database/interface.ts
    export interface DatabaseAdapter {
@@ -198,7 +205,9 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
      deleteOAuthTokens(communityId: string, platform: Platform): Promise<void>;
 
      // Stream methods
-     createStream(config: Omit<StreamConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<StreamConfig>;
+     createStream(
+       config: Omit<StreamConfig, 'id' | 'createdAt' | 'updatedAt'>
+     ): Promise<StreamConfig>;
      getStream(id: string): Promise<StreamConfig>;
      updateStream(id: string, updates: Partial<StreamConfig>): Promise<StreamConfig>;
      listStreamsByCommunity(communityId: string): Promise<StreamConfig[]>;
@@ -213,11 +222,16 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
      saveChatMessage(message: ChatMessage): Promise<void>;
      addChatMessage(data: Omit<ChatMessage, 'id'>): Promise<ChatMessage>;
      getChatMessages(streamId: string, since?: Date): Promise<ChatMessage[]>;
-     updateChatMessage(streamId: string, messageId: string, updates: Partial<ChatMessage>): Promise<ChatMessage>;
+     updateChatMessage(
+       streamId: string,
+       messageId: string,
+       updates: Partial<ChatMessage>
+     ): Promise<ChatMessage>;
    }
    ```
 
 3. **Implement PostgreSQL Adapter**
+
    ```typescript
    // src/database/postgres.ts
    import { Pool } from 'pg';
@@ -244,6 +258,7 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
    ```
 
 4. **Update Database Factory**
+
    ```typescript
    // src/database/index.ts
    import { config } from '../utils/config.js';
@@ -256,6 +271,7 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
    ```
 
 5. **Run Migrations**
+
    ```bash
    # Option A: Use migration tool
    npm install node-pg-migrate
@@ -267,6 +283,7 @@ CREATE INDEX idx_chat_messages_stream_timestamp ON chat_messages(stream_id, time
    ```
 
 6. **Update docker-compose.yml** (already configured!)
+
    ```bash
    docker-compose up -d postgres
    ```
@@ -293,21 +310,25 @@ For zero-downtime migration:
 This is a **critical architectural decision** that depends on your use case:
 
 ### Option 1: Omnistream Owns the Data (Current Design)
+
 **Best for: SaaS model where Omnistream is a managed service**
 
 ✅ **Pros:**
+
 - Omnistream manages all data, OAuth tokens, stream configurations
 - Applications using Omnistream just use the API
 - Centralized management and monitoring
 - Easier multi-tenancy
 
 ❌ **Cons:**
+
 - Application depends on Omnistream's database availability
 - Less control for application developers
 - Data residency/compliance may be an issue
 - Potential vendor lock-in
 
 **Implementation:**
+
 ```
 ┌─────────────────┐
 │   Your App      │
@@ -323,20 +344,24 @@ This is a **critical architectural decision** that depends on your use case:
 ```
 
 ### Option 2: Application Owns the Data (Embedded/Library Mode)
+
 **Best for: Self-hosted, white-label, or embedded solutions**
 
 ✅ **Pros:**
+
 - Full data control and ownership
 - No external dependencies for data
 - Can customize schema for specific needs
 - Better for compliance/data residency
 
 ❌ **Cons:**
+
 - Application responsible for database setup/maintenance
 - More complex integration
 - Each application needs separate OAuth setup
 
 **Implementation:**
+
 ```
 ┌─────────────────────────────────┐
 │   Your App                      │
@@ -349,6 +374,7 @@ This is a **critical architectural decision** that depends on your use case:
 ```
 
 **To implement this, you'd need:**
+
 ```typescript
 // src/database/custom-adapter.ts
 // Application provides its own database adapter
@@ -361,20 +387,24 @@ const server = new OmnistreamServer({
 ```
 
 ### Option 3: Hybrid Model (Recommended)
+
 **Best for: Flexibility and multiple deployment scenarios**
 
 Omnistream stores:
+
 - OAuth tokens (security/refresh logic)
 - Platform stream state (real-time status)
 - Chat message aggregation (temporary buffer)
 
 Application stores:
+
 - Stream metadata (titles, descriptions)
 - User/community information
 - Business logic data
 - Historical analytics
 
 **Implementation:**
+
 - Use Omnistream API for streaming operations
 - Application maintains its own database for business data
 - Webhook callbacks to sync critical events
@@ -398,9 +428,11 @@ Application stores:
 ## Recommendations
 
 ### For Development (Current):
+
 ✅ Keep in-memory database - it's simple and works great for testing
 
 ### For Production:
+
 1. **Migrate to PostgreSQL** using the schema and migration steps above
 2. **Use Omnistream-owned data model** if building a SaaS platform
 3. **Use Hybrid model** if building a product where apps need data ownership
@@ -410,6 +442,7 @@ Application stores:
 7. **Use connection pooling** (pg-pool or PgBouncer)
 
 ### Security Considerations:
+
 - ⚠️ **Never log OAuth tokens** - already handled in error middleware
 - 🔐 **Encrypt tokens at rest** - use PostgreSQL `pgcrypto` or AWS KMS
 - 🔄 **Implement token rotation** - refresh OAuth tokens before expiry
@@ -417,6 +450,7 @@ Application stores:
 - 🗑️ **Data retention** - auto-delete old chat messages to save space
 
 ### Performance Optimization:
+
 - Add indices on frequently queried fields (already in schema above)
 - Use materialized views for analytics
 - Partition chat_messages table by date if storing large volumes

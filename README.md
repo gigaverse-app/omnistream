@@ -13,12 +13,12 @@ TypeScript/Node.js middleware that provides RESTful APIs to stream RTMP to YouTu
 
 ## 📋 Platform Support
 
-| Platform  | OAuth | Streams | Chat | Highlights | Status |
-|-----------|-------|---------|------|------------|--------|
-| YouTube   | ✅    | ✅      | ✅   | ❌         | Fully Supported |
-| Facebook  | ✅    | ✅      | ✅   | ❌         | Fully Supported |
+| Platform  | OAuth | Streams | Chat | Highlights | Status                |
+| --------- | ----- | ------- | ---- | ---------- | --------------------- |
+| YouTube   | ✅    | ✅      | ✅   | ❌         | Fully Supported       |
+| Facebook  | ✅    | ✅      | ✅   | ❌         | Fully Supported       |
 | TikTok    | ⚠️    | ⚠️      | ⚠️   | ⚠️         | Requires API Approval |
-| Instagram | ❌    | ❌      | ❌   | ❌         | No Official API |
+| Instagram | ❌    | ❌      | ❌   | ❌         | No Official API       |
 
 **Note**: Message highlighting is not supported by any platform's public API.
 
@@ -63,24 +63,16 @@ cp .env.example .env
 **⚠️ IMPORTANT:** Omnistream uses TypeScript. You must build before running in production mode.
 
 **Option 1: Development Mode (Recommended)**
+
 ```bash
 npm run dev              # Auto-compiles & watches for changes
 ```
 
 **Option 2: Production Mode**
+
 ```bash
 npm run build           # Compile TypeScript → JavaScript
 npm start               # Run the compiled code
-```
-
-**Windows PowerShell:**
-```powershell
-# Development
-npm run dev
-
-# Production
-npm run build
-npm start
 ```
 
 The server will start on `http://localhost:3000` by default.
@@ -100,29 +92,24 @@ npm run demo                   # Interactive streaming demo
 
 ### Complete Setup Guide
 
-For detailed first-time setup instructions, see **[GETTING_STARTED.md](./GETTING_STARTED.md)**
+For detailed first-time setup instructions, see **[docs/guides/getting-started.md](./docs/guides/getting-started.md)**
 
 ### 🌐 Web Dashboard
 
 Run the interactive browser-based dashboard:
 
 **In a new terminal:**
+
 ```bash
 cd examples/web-dashboard
 npm install                    # First time only
 npm start                      # Start dashboard server
 ```
 
-**Windows PowerShell:**
-```powershell
-cd examples\web-dashboard
-npm install
-npm start
-```
-
 Then open: **http://localhost:4000**
 
 The dashboard provides a complete UI for:
+
 - Creating communities and managing API keys
 - OAuth authorization for YouTube and Facebook
 - Creating and managing multi-platform streams
@@ -131,6 +118,7 @@ The dashboard provides a complete UI for:
 - Real-time stream monitoring
 
 **Full testing included:**
+
 - 12 Bash API tests: `./test-dashboard.sh`
 - 16 Playwright UI tests: `npm test`
 
@@ -139,12 +127,15 @@ See [examples/web-dashboard/README.md](./examples/web-dashboard/README.md) for c
 ## 📡 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
 
 ### Authentication
+
 Most endpoints require an API key header:
+
 ```
 X-API-Key: omni_xxxxxxxxxxxxx
 ```
@@ -154,6 +145,7 @@ X-API-Key: omni_xxxxxxxxxxxxx
 #### Communities
 
 **Create a Community**
+
 ```http
 POST /api/v1/communities
 Content-Type: application/json
@@ -164,6 +156,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -178,6 +171,7 @@ Response:
 ```
 
 **List Communities**
+
 ```http
 GET /api/v1/communities
 ```
@@ -185,6 +179,7 @@ GET /api/v1/communities
 #### OAuth Authorization
 
 **Get Authorization URL**
+
 ```http
 GET /api/v1/auth/:platform/authorize?communityId=<community-id>
 ```
@@ -192,6 +187,7 @@ GET /api/v1/auth/:platform/authorize?communityId=<community-id>
 Platforms: `youtube`, `facebook`, `tiktok`
 
 Response:
+
 ```json
 {
   "success": true,
@@ -204,11 +200,13 @@ Response:
 ```
 
 **OAuth Callback** (handled by browser)
+
 ```http
 GET /api/v1/auth/:platform/callback?code=...&state=<community-id>
 ```
 
 **Revoke Authorization**
+
 ```http
 DELETE /api/v1/auth/:platform?communityId=<community-id>
 ```
@@ -216,6 +214,7 @@ DELETE /api/v1/auth/:platform?communityId=<community-id>
 #### Streams
 
 **Create a Stream**
+
 ```http
 POST /api/v1/streams
 X-API-Key: omni_xxxxxxxxxxxxx
@@ -232,6 +231,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -261,30 +261,35 @@ Response:
 ```
 
 **List Streams**
+
 ```http
 GET /api/v1/streams
 X-API-Key: omni_xxxxxxxxxxxxx
 ```
 
 **Get Stream Status**
+
 ```http
 GET /api/v1/streams/:streamId
 X-API-Key: omni_xxxxxxxxxxxxx
 ```
 
 **Start Stream**
+
 ```http
 POST /api/v1/streams/:streamId/start
 X-API-Key: omni_xxxxxxxxxxxxx
 ```
 
 **Stop Stream**
+
 ```http
 POST /api/v1/streams/:streamId/stop
 X-API-Key: omni_xxxxxxxxxxxxx
 ```
 
 **Delete Stream**
+
 ```http
 DELETE /api/v1/streams/:streamId
 X-API-Key: omni_xxxxxxxxxxxxx
@@ -298,11 +303,13 @@ Connect to real-time chat aggregation:
 const ws = new WebSocket('ws://localhost:3000/ws/chat');
 
 // Subscribe to stream chat
-ws.send(JSON.stringify({
-  type: 'subscribe',
-  streamId: 'your-stream-id',
-  apiKey: 'omni_xxxxxxxxxxxxx'
-}));
+ws.send(
+  JSON.stringify({
+    type: 'subscribe',
+    streamId: 'your-stream-id',
+    apiKey: 'omni_xxxxxxxxxxxxx',
+  })
+);
 
 // Receive messages
 ws.onmessage = (event) => {
@@ -321,16 +328,20 @@ ws.onmessage = (event) => {
 };
 
 // Highlight a message
-ws.send(JSON.stringify({
-  type: 'highlight',
-  messageId: 'msg-id',
-  platform: 'youtube'
-}));
+ws.send(
+  JSON.stringify({
+    type: 'highlight',
+    messageId: 'msg-id',
+    platform: 'youtube',
+  })
+);
 
 // Unsubscribe
-ws.send(JSON.stringify({
-  type: 'unsubscribe'
-}));
+ws.send(
+  JSON.stringify({
+    type: 'unsubscribe',
+  })
+);
 ```
 
 ## 🔐 Environment Variables
@@ -372,18 +383,21 @@ RATE_LIMIT_MAX_REQUESTS=100
 ### Getting OAuth Credentials
 
 **YouTube:**
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a project and enable YouTube Data API v3
 3. Create OAuth 2.0 credentials
 4. Add authorized redirect URI
 
 **Facebook:**
+
 1. Go to [Facebook Developers](https://developers.facebook.com/)
 2. Create an app
 3. Add Facebook Login product
 4. Configure OAuth redirect URIs
 
 **TikTok:**
+
 1. Apply for [TikTok LIVE Access API](https://developers.tiktok.com/)
 2. Note: Requires special approval and is not generally available
 
@@ -402,15 +416,57 @@ npm run test:integration
 # Run end-to-end tests
 npm run test:e2e
 
+# Run all tests
+npm run test:all
+
 # Watch mode
 npm run test:watch
 ```
 
 **Test Coverage:**
+
 - ✅ 28 API unit/integration tests
 - ✅ 12 Dashboard API tests (bash)
 - ✅ 16 Dashboard UI tests (Playwright)
 - **Total: 56 automated tests**
+
+## 🎨 Code Quality & Formatting
+
+This project uses **ESLint** for linting and **Prettier** for code formatting (like Python's Black).
+
+```bash
+# Check code quality (lint + format + typecheck)
+npm run check
+
+# Auto-fix all issues (lint + format)
+npm run fix
+
+# Individual commands
+npm run lint          # Run ESLint
+npm run lint:fix      # Auto-fix ESLint issues
+npm run format        # Format all code with Prettier
+npm run format:check  # Check formatting without changing files
+npm run typecheck     # TypeScript type checking
+
+# Full validation (quality + tests + build)
+npm run validate
+```
+
+**Pre-commit hooks** automatically run linting and formatting on staged files before each commit.
+
+### Editor Setup
+
+For the best experience, install these extensions:
+
+- **VS Code**: ESLint, Prettier
+- **WebStorm/IntelliJ**: Built-in support (enable ESLint & Prettier in settings)
+
+The project includes:
+
+- `.editorconfig` - Consistent editor settings
+- `.prettierrc.json` - Prettier configuration
+- `eslint.config.js` - ESLint rules for TypeScript
+- Husky + lint-staged - Pre-commit hooks
 
 ## 🐛 Troubleshooting
 
@@ -419,6 +475,7 @@ npm run test:watch
 **Cause:** TypeScript hasn't been compiled to JavaScript yet.
 
 **Solution:**
+
 ```bash
 # Option 1: Build then run
 npm run build
@@ -431,16 +488,14 @@ npm run dev
 ### Error: "Port 3000 already in use"
 
 **Solution:**
+
 ```bash
 # Kill the process using port 3000
-# Linux/Mac:
 lsof -ti:3000 | xargs kill -9
-
-# Windows PowerShell:
-Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process -Force
 ```
 
 Or change the port in `.env`:
+
 ```bash
 PORT=3001
 ```
@@ -450,6 +505,7 @@ PORT=3001
 **Cause:** Omnistream server not running.
 
 **Solution:**
+
 ```bash
 # Terminal 1: Start server
 npm run dev
@@ -463,6 +519,7 @@ npm test
 **Cause:** Main Omnistream API server not running.
 
 **Solution:**
+
 ```bash
 # Terminal 1: Start API server
 cd /path/to/omnistream
@@ -474,6 +531,7 @@ npm start
 ```
 
 Verify dashboard can reach API by checking `examples/web-dashboard/.env`:
+
 ```bash
 OMNISTREAM_API_URL=http://localhost:3000
 ```
@@ -481,6 +539,7 @@ OMNISTREAM_API_URL=http://localhost:3000
 ### OAuth URLs don't work
 
 **Common issues:**
+
 1. **Redirect URI mismatch** - Update Google/Facebook console to match `.env`
 2. **Invalid credentials** - Verify `YOUTUBE_CLIENT_ID`, `FACEBOOK_APP_ID` in `.env`
 3. **Port mismatch** - Ensure callback URLs use correct port (3000)
@@ -488,16 +547,18 @@ OMNISTREAM_API_URL=http://localhost:3000
 ### "No OAuth tokens found" error
 
 **This is expected** until you complete OAuth flow:
+
 1. Get authorization URL from API
 2. Open URL in browser
 3. Complete OAuth
 4. Tokens are automatically saved
 
-See [QUICK_START.md](./QUICK_START.md) for OAuth setup guide.
+See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for OAuth setup guide.
 
 ### Module import errors
 
 **Solution:**
+
 ```bash
 # Clean install
 rm -rf node_modules package-lock.json
@@ -505,7 +566,7 @@ npm install
 npm run build
 ```
 
-For more help, see [GETTING_STARTED.md](./GETTING_STARTED.md)
+For more help, see [docs/guides/getting-started.md](./docs/guides/getting-started.md)
 
 ## 🏭 Production Deployment
 
@@ -525,15 +586,16 @@ docker run -p 3000:3000 --env-file .env omnistream
 
 ### Production Checklist
 
-- [ ] Replace in-memory database with PostgreSQL
+- [x] Set up CI/CD pipeline (GitHub Actions)
+- [x] Docker containerization
+- [x] Docker Compose with PostgreSQL
+- [ ] Replace in-memory database with PostgreSQL in production
 - [ ] Set up proper logging (e.g., Winston, Datadog)
 - [ ] Configure reverse proxy (nginx)
 - [ ] Enable HTTPS/TLS
 - [ ] Set up monitoring and alerts
 - [ ] Configure auto-scaling
 - [ ] Implement database backups
-- [ ] Add API rate limiting per API key
-- [ ] Set up CI/CD pipeline
 
 ## 🤝 Contributing
 
@@ -541,9 +603,20 @@ Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes
+4. Run quality checks: `npm run check`
+5. Fix any issues: `npm run fix`
+6. Commit your changes (pre-commit hooks will run automatically)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+**Code Standards:**
+
+- All code must pass ESLint checks
+- Code must be formatted with Prettier
+- TypeScript strict mode must pass
+- Maintain test coverage thresholds
+- Pre-commit hooks will enforce these automatically
 
 ## 📝 License
 
@@ -558,8 +631,9 @@ ISC License
 ## 📞 Support
 
 For issues and questions:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/omnistream/issues)
-- Documentation: See `PROJECT_STATUS.md` for detailed project status
+
+- GitHub Issues: [Create an issue](https://github.com/gigaverse-app/omnistream/issues)
+- Documentation: See [docs/development/status.md](./docs/development/status.md) for detailed project status
 
 ## 🗺️ Roadmap
 
@@ -567,12 +641,14 @@ For issues and questions:
 - [x] REST API
 - [x] WebSocket chat aggregation
 - [x] Unit tests
-- [ ] 80% test coverage
-- [ ] PostgreSQL database support
+- [x] Docker deployment
+- [x] CI/CD pipeline
+- [x] Web dashboard
+- [x] Code quality tools (ESLint, Prettier)
+- [ ] 80% test coverage (currently 58%)
+- [ ] PostgreSQL database support (in-memory works for dev)
 - [ ] Stream analytics
 - [ ] Webhooks for stream events
-- [ ] Admin dashboard
-- [ ] Docker deployment
 - [ ] Kubernetes support
 - [ ] CDN integration for better latency
 

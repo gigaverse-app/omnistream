@@ -17,6 +17,7 @@ npx tsx demo/simple-demo.ts
 ```
 
 This will automatically:
+
 - ✅ Create a community
 - ✅ Generate OAuth URLs for YouTube and Facebook
 - ✅ Create a multi-platform stream configuration
@@ -24,6 +25,7 @@ This will automatically:
 - ✅ Clean up resources
 
 **Expected Output:**
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║   🚀 OMNISTREAM - Simple Automated Demo                  ║
@@ -55,6 +57,7 @@ npx tsx demo/demo-stream.ts
 ```
 
 This interactive demo lets you:
+
 - Create a community
 - Set up OAuth for YouTube/Facebook (opens browser)
 - Create a stream with custom title and description
@@ -65,10 +68,12 @@ This interactive demo lets you:
 ## 📋 Prerequisites
 
 ### Required
+
 - Node.js 18+ and npm
 - Omnistream server running (`npm run dev`)
 
 ### Optional (for video streaming)
+
 - **FFmpeg** installed for actual video streaming
   - macOS: `brew install ffmpeg`
   - Ubuntu: `sudo apt-get install ffmpeg`
@@ -91,6 +96,7 @@ Before you can stream to YouTube or Facebook, you need to authorize the app:
 ### Step 2: Prepare Your Video
 
 Have a video file ready. For testing, you can use:
+
 - Any MP4/MOV file from your computer
 - Sample videos from https://sample-videos.com/
 - Create a test video with your webcam
@@ -106,9 +112,11 @@ Have a video file ready. For testing, you can use:
 ## 📊 What Each Demo Does
 
 ### simple-demo.ts
+
 **Purpose:** Automated API testing without user interaction
 
 **What it tests:**
+
 - API health check
 - Community creation
 - OAuth URL generation
@@ -119,9 +127,11 @@ Have a video file ready. For testing, you can use:
 **Use case:** Quick smoke test, CI/CD validation
 
 ### demo-stream.ts
+
 **Purpose:** Full interactive demonstration with real video streaming
 
 **What it demonstrates:**
+
 - Complete OAuth flow
 - Custom stream configuration
 - FFmpeg integration for video streaming
@@ -133,20 +143,25 @@ Have a video file ready. For testing, you can use:
 ## 🔧 Troubleshooting
 
 ### "Connection refused" error
+
 Make sure the Omnistream server is running:
+
 ```bash
 npm run dev
 ```
 
 ### "OAuth tokens not found" error
+
 Complete the OAuth flow by opening the authorization URLs in your browser.
 
 ### FFmpeg errors
+
 - Verify FFmpeg is installed: `ffmpeg -version`
 - Check your video file path is correct
 - Ensure the video file is in a supported format (MP4, MOV, etc.)
 
 ### Platform-specific errors
+
 - **YouTube:** Make sure you've enabled YouTube Data API v3 in Google Cloud Console
 - **Facebook:** Ensure your app has "Facebook Login" product enabled
 - Check your OAuth credentials in `.env` file
@@ -169,6 +184,7 @@ FACEBOOK_APP_SECRET=your_app_secret
 ## 📖 Example Workflows
 
 ### Quick Validation Test
+
 ```bash
 # Start server
 npm run dev
@@ -178,6 +194,7 @@ npx tsx demo/simple-demo.ts
 ```
 
 ### Full Demo with Video Streaming
+
 ```bash
 # Start server
 npm run dev
@@ -197,6 +214,7 @@ npx tsx demo/demo-stream.ts
 ```
 
 ### Testing Without OAuth (API Only)
+
 ```bash
 # Run simple demo - works without OAuth
 npx tsx demo/simple-demo.ts
@@ -225,6 +243,7 @@ After running the demos:
 ## 🆘 Support
 
 If you encounter issues:
+
 1. Check the logs in the Omnistream server terminal
 2. Verify your `.env` configuration
 3. Ensure all prerequisites are installed

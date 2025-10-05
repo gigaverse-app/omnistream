@@ -10,28 +10,34 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 ## Fixed Issues
 
 ### 1. API Integration Mismatch
+
 **Problem:** Dashboard was using `/api/v1/users/*` endpoints that didn't exist
 **Solution:** Updated to use `/api/v1/communities` endpoints matching the actual Omnistream API
 
 **Files Modified:**
+
 - `server.js` - Updated all API proxy routes
 - `public/js/app.js` - Updated frontend to use community-based authentication
 - `views/index.ejs` - Updated UI labels from "user" to "community"
 
 ### 2. OAuth Flow
+
 **Problem:** OAuth wasn't using the correct communityId parameter
 **Solution:** Fixed OAuth URL generation to use communityId from the authenticated community
 
 **Changes:**
+
 - Added `/api/auth/:platform/authorize` endpoint to get OAuth URLs
 - Updated frontend `connectPlatform()` to fetch OAuth URLs dynamically
 - OAuth state parameter now correctly uses communityId
 
 ### 3. Authentication Flow
+
 **Problem:** Login/registration flow was designed for username/password but API uses API keys
 **Solution:** Simplified to community-based authentication
 
 **Changes:**
+
 - Registration → Create Community (just needs a name)
 - Login → Use Existing API Key (paste API key directly)
 - API keys are auto-generated and saved to localStorage
@@ -40,6 +46,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 ## Test Coverage
 
 ### Bash API Tests (12 tests)
+
 ```
 ✓ Server health checks
 ✓ Dashboard homepage loads
@@ -58,6 +65,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 **Result:** 12/12 tests passed ✅
 
 ### Playwright E2E Tests (16 tests)
+
 ```
 ✓ Dashboard homepage loads correctly
 ✓ Authentication section visible on load
@@ -82,6 +90,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 ## Verified Functionality
 
 ### ✅ Community Management
+
 - [x] Create new community
 - [x] Auto-generate API key
 - [x] Login with existing API key
@@ -89,6 +98,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 - [x] Logout and clear session
 
 ### ✅ Platform Integration
+
 - [x] List available platforms (YouTube, Facebook, TikTok)
 - [x] Display connection status
 - [x] Generate OAuth authorization URLs
@@ -96,6 +106,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 - [x] Connect buttons functional
 
 ### ✅ Stream Management
+
 - [x] Create streams with title/description
 - [x] Select target platforms
 - [x] List community streams
@@ -106,6 +117,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 - [x] Auto-refresh stream status
 
 ### ✅ Error Handling
+
 - [x] Invalid API key rejected
 - [x] Missing API key rejected
 - [x] Form validation (missing title)
@@ -113,6 +125,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 - [x] Clear error messages displayed
 
 ### ✅ Session Management
+
 - [x] API key stored in localStorage
 - [x] Community ID stored in localStorage
 - [x] Session persists across page reloads
@@ -129,6 +142,7 @@ The Omnistream Web Dashboard has been fully tested and verified to work end-to-e
 ## Browser Compatibility
 
 Tested with:
+
 - ✅ Chromium (Playwright automated tests)
 - ✅ Chrome (manual testing)
 - ✅ Firefox (compatible, not automatically tested)
@@ -136,19 +150,19 @@ Tested with:
 
 ## API Endpoints Verified
 
-| Endpoint | Method | Status |
-|----------|--------|--------|
-| `/api/communities` | POST | ✅ Working |
-| `/api/communities` | GET | ✅ Working |
-| `/api/community` | GET | ✅ Working |
-| `/api/platforms` | GET | ✅ Working |
-| `/api/auth/:platform/authorize` | GET | ✅ Working |
-| `/api/streams` | POST | ✅ Working |
-| `/api/streams` | GET | ✅ Working |
-| `/api/streams/:id` | GET | ✅ Working |
-| `/api/streams/:id/start` | POST | ✅ Working |
-| `/api/streams/:id/stop` | POST | ✅ Working |
-| `/api/streams/:id` | DELETE | ✅ Working |
+| Endpoint                        | Method | Status     |
+| ------------------------------- | ------ | ---------- |
+| `/api/communities`              | POST   | ✅ Working |
+| `/api/communities`              | GET    | ✅ Working |
+| `/api/community`                | GET    | ✅ Working |
+| `/api/platforms`                | GET    | ✅ Working |
+| `/api/auth/:platform/authorize` | GET    | ✅ Working |
+| `/api/streams`                  | POST   | ✅ Working |
+| `/api/streams`                  | GET    | ✅ Working |
+| `/api/streams/:id`              | GET    | ✅ Working |
+| `/api/streams/:id/start`        | POST   | ✅ Working |
+| `/api/streams/:id/stop`         | POST   | ✅ Working |
+| `/api/streams/:id`              | DELETE | ✅ Working |
 
 ## Known Limitations
 

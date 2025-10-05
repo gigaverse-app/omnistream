@@ -5,46 +5,57 @@ This file contains all instructions given by the user during the initial build s
 ## Primary Instructions
 
 ### Build Requirements
+
 **User said**: "I need you to fully build this project from scratch. you are running inside github codespace. you have full authority to run, install, developer, test. I want you to have full control of the shell/terminal. commit anything you want. freely use git. create branches/PRs as needed. dont stop until you completed the mission. it should be fully tested with integration."
 
 **Key Points**:
+
 - Environment: GitHub Codespace
 - Full authority granted for: install, develop, test, commit, push, branch, PR
 - Must be fully tested with integration tests
 - Don't stop until mission complete
 
 ### Documentation Requirements
+
 **User said**: "write and updates files that include your learnings, plans and needs"
 
 **Key Points**:
+
 - Document learnings as you work
 - Keep plans updated
 - Track what's needed for completion
 
 ### Git Workflow Requirements
+
 **User said**:
+
 - "keep commiting whenever you hit a milestone"
 - "git pushing and creating branches/PRs and merging so that we dont lose state"
 - "commit everything and push"
 
 **Key Points**:
+
 - Commit at every milestone (not just at the end)
 - Push commits to remote frequently
 - Use branches and PRs to preserve state
 - Never lose work - commit and push regularly
 
 ### Context Preservation
+
 **User said**: "put the instructions I gave you now in a file that explains my instructions and so that you will keep refering back to this file"
 
 **Key Points**:
+
 - Create reference files with all instructions
 - Keep referring back to these files
 - Ensure continuity across Claude Code sessions
 
 ### Final Instruction
+
 **User said**: "find all my instructions from this chat, put them and put your plan in files that claude code is likely to read"
 
 **Key Points**:
+
 - Consolidate all instructions
 - Create files Claude Code automatically finds
 - Include detailed plans
@@ -54,18 +65,21 @@ This file contains all instructions given by the user during the initial build s
 See `.clinerules` for complete architecture requirements. Key points:
 
 ### Architecture
+
 - **Modular providers**: Each platform completely independent
 - **Abstract interfaces**: All implement `StreamProvider`
 - **Graceful degradation**: Continue working when platforms fail
 - **Per-community OAuth**: Separate tokens per platform
 
 ### Platforms
+
 - YouTube: Full support (OAuth, streams, chat)
 - Facebook: Full support (OAuth, streams, comments)
 - TikTok: Stub (requires API approval)
 - Instagram: Stub (no official API)
 
 ### Code Standards
+
 - TypeScript strict mode
 - Error handling with try-catch
 - Unit tests (Jest) + integration tests (Playwright)
@@ -73,6 +87,7 @@ See `.clinerules` for complete architecture requirements. Key points:
 - ESM modules (import/export)
 
 ### Testing Requirements
+
 - Minimum 80% code coverage
 - Mock external API calls in unit tests
 - Integration tests with Playwright
@@ -81,6 +96,7 @@ See `.clinerules` for complete architecture requirements. Key points:
 ## Current Status
 
 ### ✅ Completed
+
 - Full TypeScript/Node.js application
 - YouTube & Facebook providers fully implemented
 - TikTok & Instagram stubs
@@ -95,6 +111,7 @@ See `.clinerules` for complete architecture requirements. Key points:
 - All code committed and pushed
 
 ### 🔲 Remaining Work
+
 - Increase test coverage from 24% to 80%
 - Run Playwright integration tests end-to-end
 - Add more comprehensive API route tests
@@ -150,6 +167,7 @@ See `.clinerules` for complete architecture requirements. Key points:
 ## User's Intent
 
 The user wants omnistream to be middleware for **gigaverse.com** to:
+
 - Stream RTMP to multiple social platforms simultaneously
 - Handle OAuth for each platform per community
 - Aggregate real-time chat from all platforms
