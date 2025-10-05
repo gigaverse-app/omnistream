@@ -1,5 +1,4 @@
 // Global state
-let apiKey = localStorage.getItem('omnistream_api_key');
 let communityData = null;
 let communityId = localStorage.getItem('omnistream_community_id');
 let platforms = [];
@@ -8,7 +7,7 @@ let streamRefreshInterval = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-    if (apiKey) {
+    if (communityId) {
         loadCommunityProfile();
     }
 
@@ -43,13 +42,11 @@ async function createCommunity() {
             throw new Error(data.error || 'Failed to create community');
         }
 
-        // Save API key and community ID
-        apiKey = data.data.apiKey;
+        // Save community ID
         communityId = data.data.id;
-        localStorage.setItem('omnistream_api_key', apiKey);
         localStorage.setItem('omnistream_community_id', communityId);
 
-        showStatus('auth-status', `Community "${communityName}" created! Your API key has been saved.`, 'success');
+        showStatus('auth-status', `Community "${communityName}" created successfully!`, 'success');
 
         // Clear form
         document.getElementById('community-name').value = '';
@@ -63,37 +60,33 @@ async function createCommunity() {
     }
 }
 
-// Login with existing API key
-async function loginWithApiKey() {
-    const inputApiKey = document.getElementById('login-apikey').value.trim();
+// Login with existing community ID
+async function loginWithCommunityId() {
+    const inputCommunityId = document.getElementById('login-communityid').value.trim();
 
-    if (!inputApiKey) {
-        showStatus('auth-status', 'Please enter your API key', 'error');
+    if (!inputCommunityId) {
+        showStatus('auth-status', 'Please enter your community ID', 'error');
         return;
     }
 
     try {
-        // Verify API key by trying to fetch community info
-        const response = await fetch('/api/community', {
-            headers: { 'x-api-key': inputApiKey }
-        });
+        // Verify community exists
+        const response = await fetch(`/api/community/${inputCommunityId}`);
 
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.error || 'Invalid API key');
+            throw new Error(data.error || 'Invalid community ID');
         }
 
-        // Save API key and community ID
-        apiKey = inputApiKey;
-        communityId = data.data.id;
-        localStorage.setItem('omnistream_api_key', apiKey);
+        // Save community ID
+        communityId = inputCommunityId;
         localStorage.setItem('omnistream_community_id', communityId);
 
         showStatus('auth-status', 'Login successful!', 'success');
 
         // Clear form
-        document.getElementById('login-apikey').value = '';
+        document.getElementById('login-communityid').value = '';
 
         setTimeout(() => {
             loadCommunityProfile();
@@ -104,12 +97,10 @@ async function loginWithApiKey() {
 }
 
 function logout() {
-    apiKey = null;
     communityData = null;
     communityId = null;
     platforms = [];
     streams = [];
-    localStorage.removeItem('omnistream_api_key');
     localStorage.removeItem('omnistream_community_id');
 
     if (streamRefreshInterval) {
@@ -127,9 +118,7 @@ function logout() {
 
 async function loadCommunityProfile() {
     try {
-        const response = await fetch('/api/community', {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch(`/api/community/${communityId}`);
 
         const data = await response.json();
 
@@ -138,11 +127,9 @@ async function loadCommunityProfile() {
         }
 
         communityData = data.data;
-        communityId = data.data.id;
 
         document.getElementById('profile-name').textContent = data.data.name;
         document.getElementById('profile-id').textContent = data.data.id;
-        document.getElementById('profile-apikey').textContent = apiKey;
 
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
@@ -165,9 +152,7 @@ async function loadCommunityProfile() {
 // Platform OAuth functions
 async function loadPlatforms() {
     try {
-        const response = await fetch('/api/platforms', {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch(`/api/platforms?communityId=${communityId}`);
 
         const data = await response.json();
 
@@ -238,9 +223,7 @@ function renderPlatformCheckboxes() {
 async function connectPlatform(platformName) {
     try {
         // Get the OAuth authorization URL
-        const response = await fetch(`/api/auth/${platformName}/authorize`, {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch(`/api/auth/${platformName}/authorize?communityId=${communityId}`);
 
         const data = await response.json();
 
@@ -274,9 +257,7 @@ function disconnectPlatform(platformName) {
 // Stream management functions
 async function loadStreams() {
     try {
-        const response = await fetch('/api/streams', {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch(`/api/streams?communityId=${communityId}`);
 
         const data = await response.json();
 
@@ -377,9 +358,9 @@ async function createStream() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': apiKey
             },
             body: JSON.stringify({
+                communityId,
                 title,
                 description,
                 platforms: selectedPlatforms,
@@ -414,9 +395,8 @@ async function startStream(streamId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': apiKey
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({ communityId })
         });
 
         const data = await response.json();
@@ -438,8 +418,8 @@ async function stopStream(streamId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': apiKey
-            }
+            },
+            body: JSON.stringify({ communityId })
         });
 
         const data = await response.json();
@@ -457,9 +437,7 @@ async function stopStream(streamId) {
 
 async function refreshStream(streamId) {
     try {
-        const response = await fetch(`/api/streams/${streamId}`, {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch(`/api/streams/${streamId}?communityId=${communityId}`);
 
         const data = await response.json();
 
@@ -480,9 +458,8 @@ async function deleteStream(streamId) {
     }
 
     try {
-        const response = await fetch(`/api/streams/${streamId}`, {
-            method: 'DELETE',
-            headers: { 'x-api-key': apiKey }
+        const response = await fetch(`/api/streams/${streamId}?communityId=${communityId}`, {
+            method: 'DELETE'
         });
 
         const data = await response.json();

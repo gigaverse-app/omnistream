@@ -23,15 +23,15 @@
                         <input type="text" id="community-name" placeholder="Community Name (e.g., Gigaverse Gaming)" />
                         <button onclick="createCommunity()" class="btn btn-primary">Create Community</button>
                         <p class="info-text" style="font-size: 0.9em; margin-top: 10px;">
-                            Your API key will be generated automatically
+                            A unique community ID will be generated automatically
                         </p>
                     </div>
                     <div class="form-group">
-                        <h3>Use Existing API Key</h3>
-                        <input type="text" id="login-apikey" placeholder="Your API Key (omni_...)" />
-                        <button onclick="loginWithApiKey()" class="btn btn-primary">Login</button>
+                        <h3>Use Existing Community ID</h3>
+                        <input type="text" id="login-communityid" placeholder="Your Community ID (UUID)" />
+                        <button onclick="loginWithCommunityId()" class="btn btn-primary">Login</button>
                         <p class="info-text" style="font-size: 0.9em; margin-top: 10px;">
-                            Enter your existing API key to continue
+                            Enter your existing community ID to continue
                         </p>
                     </div>
                 </div>
@@ -46,7 +46,6 @@
                     <div>
                         <h2>Community: <span id="profile-name"></span></h2>
                         <p>Community ID: <code id="profile-id"></code></p>
-                        <p>API Key: <code id="profile-apikey"></code></p>
                     </div>
                     <button onclick="logout()" class="btn btn-secondary">Logout</button>
                 </div>
@@ -98,8 +97,8 @@
                 <h2>💡 About This Demo</h2>
                 <div class="demo-features">
                     <div class="feature">
-                        <h3>🔐 User Authentication</h3>
-                        <p>Register and login to get your unique API key for streaming</p>
+                        <h3>🔐 Community Management</h3>
+                        <p>Create and manage communities with unique IDs for organizing your streams</p>
                     </div>
                     <div class="feature">
                         <h3>🌐 OAuth Integration</h3>
