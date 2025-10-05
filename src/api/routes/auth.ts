@@ -2,13 +2,13 @@
  * OAuth authentication routes
  */
 
-import express, { Request, Response, NextFunction } from 'express';
-import { db } from '../../database/index.js';
-import { providerRegistry } from '../../providers/index.js';
-import { Platform } from '../../core/interfaces.js';
-import { ValidationError } from '../../core/errors.js';
-import { config } from '../../utils/config.js';
-import { logger } from '../../utils/logger.js';
+import express, { Request, Response, NextFunction } from "express";
+import { db } from "../../database/index.js";
+import { providerRegistry } from "../../providers/index.js";
+import { Platform } from "../../core/interfaces.js";
+import { ValidationError } from "../../core/errors.js";
+import { config } from "../../utils/config.js";
+import { logger } from "../../utils/logger.js";
 
 const router = express.Router();
 
@@ -17,14 +17,14 @@ const router = express.Router();
  * Get OAuth authorization URL
  */
 router.get(
-  '/:platform/authorize',
+  "/:platform/authorize",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const platform = req.params.platform as Platform;
       const communityId = req.query.communityId as string;
 
       if (!communityId) {
-        throw new ValidationError('communityId query parameter is required');
+        throw new ValidationError("communityId query parameter is required");
       }
 
       // Verify community exists
@@ -60,7 +60,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 /**
@@ -68,7 +68,7 @@ router.get(
  * OAuth callback endpoint
  */
 router.get(
-  '/:platform/callback',
+  "/:platform/callback",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const platform = req.params.platform as Platform;
@@ -76,11 +76,11 @@ router.get(
       const communityId = req.query.state as string;
 
       if (!code) {
-        throw new ValidationError('Authorization code is required');
+        throw new ValidationError("Authorization code is required");
       }
 
       if (!communityId) {
-        throw new ValidationError('Community ID is required');
+        throw new ValidationError("Community ID is required");
       }
 
       // Verify community exists
@@ -112,7 +112,7 @@ router.get(
         updatedAt: new Date(),
       });
 
-      logger.info('OAuth tokens saved', { communityId, platform });
+      logger.info("OAuth tokens saved", { communityId, platform });
 
       res.send(`
         <html>
@@ -126,7 +126,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 /**
@@ -134,14 +134,14 @@ router.get(
  * Revoke OAuth tokens for a platform
  */
 router.delete(
-  '/:platform',
+  "/:platform",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const platform = req.params.platform as Platform;
       const communityId = req.query.communityId as string;
 
       if (!communityId) {
-        throw new ValidationError('communityId query parameter is required');
+        throw new ValidationError("communityId query parameter is required");
       }
 
       // Verify community exists
@@ -149,7 +149,7 @@ router.delete(
 
       await db.deleteOAuthTokens(communityId, platform);
 
-      logger.info('OAuth tokens deleted', { communityId, platform });
+      logger.info("OAuth tokens deleted", { communityId, platform });
 
       res.json({
         success: true,
@@ -160,7 +160,7 @@ router.delete(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

@@ -3,12 +3,12 @@
  * Central registry for all streaming platform providers
  */
 
-import { StreamProvider, Platform } from '../core/interfaces.js';
-import { youtubeProvider } from './youtube/index.js';
-import { facebookProvider } from './facebook/index.js';
-import { tiktokProvider } from './tiktok/index.js';
-import { instagramProvider } from './instagram/index.js';
-import { NotFoundError } from '../core/errors.js';
+import { StreamProvider, Platform } from "../core/interfaces.js";
+import { youtubeProvider } from "./youtube/index.js";
+import { facebookProvider } from "./facebook/index.js";
+import { tiktokProvider } from "./tiktok/index.js";
+import { instagramProvider } from "./instagram/index.js";
+import { NotFoundError } from "../core/errors.js";
 
 class ProviderRegistry {
   private providers: Map<Platform, StreamProvider> = new Map();

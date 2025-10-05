@@ -10,9 +10,9 @@ import {
   PlatformStream,
   ChatMessage,
   Platform,
-} from '../core/interfaces.js';
-import { NotFoundError } from '../core/errors.js';
-import crypto from 'crypto';
+} from "../core/interfaces.js";
+import { NotFoundError } from "../core/errors.js";
+import crypto from "crypto";
 
 class Database {
   private communities: Map<string, Community> = new Map();
@@ -25,7 +25,7 @@ class Database {
   // Community methods
   async createCommunity(name: string): Promise<Community> {
     const id = crypto.randomUUID();
-    const apiKey = `omni_${crypto.randomBytes(32).toString('hex')}`;
+    const apiKey = `omni_${crypto.randomBytes(32).toString("hex")}`;
     const community: Community = {
       id,
       name,
@@ -50,7 +50,7 @@ class Database {
   async getCommunityByApiKey(apiKey: string): Promise<Community> {
     const communityId = this.communityByApiKey.get(apiKey);
     if (!communityId) {
-      throw new NotFoundError('Invalid API key');
+      throw new NotFoundError("Invalid API key");
     }
     return this.getCommunityById(communityId);
   }
@@ -65,7 +65,11 @@ class Database {
     this.oauthTokens.set(key, { ...tokens, updatedAt: new Date() });
   }
 
-  async saveOAuthToken(communityId: string, platform: Platform, tokens: any): Promise<void> {
+  async saveOAuthToken(
+    communityId: string,
+    platform: Platform,
+    tokens: any,
+  ): Promise<void> {
     await this.saveOAuthTokens({
       communityId,
       platform,
@@ -76,19 +80,22 @@ class Database {
 
   async getOAuthTokens(
     communityId: string,
-    platform: Platform
+    platform: Platform,
   ): Promise<CommunityOAuthTokens> {
     const key = `${communityId}:${platform}`;
     const tokens = this.oauthTokens.get(key);
     if (!tokens) {
       throw new NotFoundError(
-        `No OAuth tokens found for community ${communityId} on ${platform}`
+        `No OAuth tokens found for community ${communityId} on ${platform}`,
       );
     }
     return tokens;
   }
 
-  async getOAuthToken(communityId: string, platform: Platform): Promise<any | null> {
+  async getOAuthToken(
+    communityId: string,
+    platform: Platform,
+  ): Promise<any | null> {
     try {
       const tokenData = await this.getOAuthTokens(communityId, platform);
       return tokenData.tokens;
@@ -97,13 +104,18 @@ class Database {
     }
   }
 
-  async deleteOAuthTokens(communityId: string, platform: Platform): Promise<void> {
+  async deleteOAuthTokens(
+    communityId: string,
+    platform: Platform,
+  ): Promise<void> {
     const key = `${communityId}:${platform}`;
     this.oauthTokens.delete(key);
   }
 
   // Stream methods
-  async createStream(config: Omit<StreamConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<StreamConfig> {
+  async createStream(
+    config: Omit<StreamConfig, "id" | "createdAt" | "updatedAt">,
+  ): Promise<StreamConfig> {
     const id = crypto.randomUUID();
     const stream: StreamConfig = {
       ...config,
@@ -124,7 +136,10 @@ class Database {
     return stream;
   }
 
-  async updateStream(id: string, updates: Partial<StreamConfig>): Promise<StreamConfig> {
+  async updateStream(
+    id: string,
+    updates: Partial<StreamConfig>,
+  ): Promise<StreamConfig> {
     const stream = await this.getStream(id);
     const updated = {
       ...stream,
@@ -137,7 +152,7 @@ class Database {
 
   async listStreamsByCommunity(communityId: string): Promise<StreamConfig[]> {
     return Array.from(this.streams.values()).filter(
-      (s) => s.communityId === communityId
+      (s) => s.communityId === communityId,
     );
   }
 
@@ -148,9 +163,14 @@ class Database {
   }
 
   // Platform stream methods
-  async savePlatformStream(streamId: string, platformStream: PlatformStream): Promise<void> {
+  async savePlatformStream(
+    streamId: string,
+    platformStream: PlatformStream,
+  ): Promise<void> {
     const existing = this.platformStreams.get(streamId) || [];
-    const index = existing.findIndex((ps) => ps.platform === platformStream.platform);
+    const index = existing.findIndex(
+      (ps) => ps.platform === platformStream.platform,
+    );
 
     if (index >= 0) {
       existing[index] = platformStream;
@@ -167,7 +187,7 @@ class Database {
 
   async getPlatformStream(
     streamId: string,
-    platform: Platform
+    platform: Platform,
   ): Promise<PlatformStream | undefined> {
     const streams = await this.getPlatformStreams(streamId);
     return streams.find((ps) => ps.platform === platform);
@@ -180,7 +200,7 @@ class Database {
     this.chatMessages.set(message.streamId, messages);
   }
 
-  async addChatMessage(data: Omit<ChatMessage, 'id'>): Promise<ChatMessage> {
+  async addChatMessage(data: Omit<ChatMessage, "id">): Promise<ChatMessage> {
     const message: ChatMessage = {
       ...data,
       id: crypto.randomUUID(),
@@ -189,7 +209,10 @@ class Database {
     return message;
   }
 
-  async getChatMessages(streamId: string, since?: Date): Promise<ChatMessage[]> {
+  async getChatMessages(
+    streamId: string,
+    since?: Date,
+  ): Promise<ChatMessage[]> {
     const messages = this.chatMessages.get(streamId) || [];
     if (since) {
       return messages.filter((m) => m.timestamp > since);
@@ -197,7 +220,11 @@ class Database {
     return messages;
   }
 
-  async updateChatMessage(streamId: string, messageId: string, updates: Partial<ChatMessage>): Promise<ChatMessage> {
+  async updateChatMessage(
+    streamId: string,
+    messageId: string,
+    updates: Partial<ChatMessage>,
+  ): Promise<ChatMessage> {
     const messages = this.chatMessages.get(streamId) || [];
     const index = messages.findIndex((m) => m.id === messageId);
 

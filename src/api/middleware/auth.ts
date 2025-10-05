@@ -2,10 +2,10 @@
  * Authentication middleware
  */
 
-import { Request, Response, NextFunction } from 'express';
-import { db } from '../../database/index.js';
-import { AuthenticationError } from '../../core/errors.js';
-import { Community } from '../../core/interfaces.js';
+import { Request, Response, NextFunction } from "express";
+import { db } from "../../database/index.js";
+import { AuthenticationError } from "../../core/errors.js";
+import { Community } from "../../core/interfaces.js";
 
 // Extend Express Request type to include community
 declare global {
@@ -22,13 +22,13 @@ declare global {
 export async function authenticate(
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
-    const apiKey = req.headers['x-api-key'] as string;
+    const apiKey = req.headers["x-api-key"] as string;
 
     if (!apiKey) {
-      throw new AuthenticationError('API key is required');
+      throw new AuthenticationError("API key is required");
     }
 
     const community = await db.getCommunityByApiKey(apiKey);

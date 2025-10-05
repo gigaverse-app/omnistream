@@ -2,9 +2,9 @@
  * Community management routes
  */
 
-import express, { Request, Response, NextFunction } from 'express';
-import { db } from '../../database/index.js';
-import { ValidationError } from '../../core/errors.js';
+import express, { Request, Response, NextFunction } from "express";
+import { db } from "../../database/index.js";
+import { ValidationError } from "../../core/errors.js";
 
 const router = express.Router();
 
@@ -12,12 +12,12 @@ const router = express.Router();
  * POST /api/v1/communities
  * Create a new community
  */
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name } = req.body;
 
-    if (!name || typeof name !== 'string') {
-      throw new ValidationError('Community name is required');
+    if (!name || typeof name !== "string") {
+      throw new ValidationError("Community name is required");
     }
 
     const community = await db.createCommunity(name);
@@ -35,7 +35,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
  * GET /api/v1/communities
  * List all communities
  */
-router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const communities = await db.listCommunities();
 

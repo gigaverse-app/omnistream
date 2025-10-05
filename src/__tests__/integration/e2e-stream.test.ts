@@ -3,19 +3,21 @@
  * Tests the complete flow: Community → OAuth → Stream Creation → Stream Management
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('E2E Stream Management Flow', () => {
+test.describe("E2E Stream Management Flow", () => {
   let communityId: string;
   let apiKey: string;
   let streamId: string;
 
-  test('Complete workflow: create community → create stream → manage lifecycle', async ({ request }) => {
+  test("Complete workflow: create community → create stream → manage lifecycle", async ({
+    request,
+  }) => {
     // Step 1: Create a community
-    console.log('Step 1: Creating community...');
-    const createCommunityResponse = await request.post('/api/v1/communities', {
+    console.log("Step 1: Creating community...");
+    const createCommunityResponse = await request.post("/api/v1/communities", {
       data: {
-        name: 'E2E Test Community',
+        name: "E2E Test Community",
       },
     });
 
@@ -30,34 +32,37 @@ test.describe('E2E Stream Management Flow', () => {
     console.log(`✓ Community created: ${communityId}`);
 
     // Step 2: Get OAuth authorization URL for YouTube
-    console.log('Step 2: Getting YouTube OAuth URL...');
-    const authUrlResponse = await request.get('/api/v1/auth/youtube/authorize', {
-      params: {
-        communityId,
+    console.log("Step 2: Getting YouTube OAuth URL...");
+    const authUrlResponse = await request.get(
+      "/api/v1/auth/youtube/authorize",
+      {
+        params: {
+          communityId,
+        },
       },
-    });
+    );
 
     expect(authUrlResponse.ok()).toBeTruthy();
     const authData = await authUrlResponse.json();
     expect(authData.success).toBe(true);
-    expect(authData.data.authUrl).toContain('accounts.google.com');
-    expect(authData.data.authUrl).toContain('scope=');
-    expect(authData.data.authUrl).toContain('youtube');
+    expect(authData.data.authUrl).toContain("accounts.google.com");
+    expect(authData.data.authUrl).toContain("scope=");
+    expect(authData.data.authUrl).toContain("youtube");
 
-    console.log('✓ OAuth URL generated (user would complete OAuth in browser)');
+    console.log("✓ OAuth URL generated (user would complete OAuth in browser)");
 
     // Step 3: Create a stream (will create stream record even without OAuth completion)
-    console.log('Step 3: Creating stream configuration...');
-    const createStreamResponse = await request.post('/api/v1/streams', {
+    console.log("Step 3: Creating stream configuration...");
+    const createStreamResponse = await request.post("/api/v1/streams", {
       headers: {
-        'X-API-Key': apiKey,
+        "X-API-Key": apiKey,
       },
       data: {
-        title: 'E2E Integration Test Stream',
-        description: 'Testing the complete streaming workflow',
-        rtmpUrl: 'rtmp://test-server.example.com/live',
-        rtmpKey: 'test-stream-key-12345',
-        platforms: ['youtube'],
+        title: "E2E Integration Test Stream",
+        description: "Testing the complete streaming workflow",
+        rtmpUrl: "rtmp://test-server.example.com/live",
+        rtmpKey: "test-stream-key-12345",
+        platforms: ["youtube"],
       },
     });
 
@@ -65,8 +70,8 @@ test.describe('E2E Stream Management Flow', () => {
     const streamData = await createStreamResponse.json();
     expect(streamData.success).toBe(true);
     expect(streamData.data.stream).toBeDefined();
-    expect(streamData.data.stream.title).toBe('E2E Integration Test Stream');
-    expect(streamData.data.stream.platforms).toContain('youtube');
+    expect(streamData.data.stream.title).toBe("E2E Integration Test Stream");
+    expect(streamData.data.stream.platforms).toContain("youtube");
     expect(streamData.data.platformStreams).toBeDefined();
     expect(Array.isArray(streamData.data.platformStreams)).toBe(true);
 
@@ -75,10 +80,10 @@ test.describe('E2E Stream Management Flow', () => {
     console.log(`✓ Stream created: ${streamId}`);
 
     // Step 4: List streams for the community
-    console.log('Step 4: Listing community streams...');
-    const listStreamsResponse = await request.get('/api/v1/streams', {
+    console.log("Step 4: Listing community streams...");
+    const listStreamsResponse = await request.get("/api/v1/streams", {
       headers: {
-        'X-API-Key': apiKey,
+        "X-API-Key": apiKey,
       },
     });
 
@@ -90,15 +95,15 @@ test.describe('E2E Stream Management Flow', () => {
 
     const createdStream = listData.data.find((s: any) => s.id === streamId);
     expect(createdStream).toBeDefined();
-    expect(createdStream.title).toBe('E2E Integration Test Stream');
+    expect(createdStream.title).toBe("E2E Integration Test Stream");
 
     console.log(`✓ Found ${listData.data.length} stream(s)`);
 
     // Step 5: Get stream status
-    console.log('Step 5: Getting stream status...');
+    console.log("Step 5: Getting stream status...");
     const statusResponse = await request.get(`/api/v1/streams/${streamId}`, {
       headers: {
-        'X-API-Key': apiKey,
+        "X-API-Key": apiKey,
       },
     });
 
@@ -109,15 +114,20 @@ test.describe('E2E Stream Management Flow', () => {
     expect(statusData.data.stream.id).toBe(streamId);
     expect(statusData.data.platformStreams).toBeDefined();
 
-    console.log('✓ Stream status retrieved');
+    console.log("✓ Stream status retrieved");
 
     // Step 6: Attempt to start stream (will fail without OAuth tokens, but API should handle gracefully)
-    console.log('Step 6: Attempting to start stream (expected to fail gracefully without OAuth)...');
-    const startResponse = await request.post(`/api/v1/streams/${streamId}/start`, {
-      headers: {
-        'X-API-Key': apiKey,
+    console.log(
+      "Step 6: Attempting to start stream (expected to fail gracefully without OAuth)...",
+    );
+    const startResponse = await request.post(
+      `/api/v1/streams/${streamId}/start`,
+      {
+        headers: {
+          "X-API-Key": apiKey,
+        },
       },
-    });
+    );
 
     expect(startResponse.ok()).toBeTruthy();
     const startData = await startResponse.json();
@@ -126,27 +136,30 @@ test.describe('E2E Stream Management Flow', () => {
 
     // Since we don't have OAuth tokens, the platform stream should have an error status
     // but the API should handle this gracefully
-    console.log('✓ Start request handled gracefully');
+    console.log("✓ Start request handled gracefully");
 
     // Step 7: Attempt to stop stream
-    console.log('Step 7: Stopping stream...');
-    const stopResponse = await request.post(`/api/v1/streams/${streamId}/stop`, {
-      headers: {
-        'X-API-Key': apiKey,
+    console.log("Step 7: Stopping stream...");
+    const stopResponse = await request.post(
+      `/api/v1/streams/${streamId}/stop`,
+      {
+        headers: {
+          "X-API-Key": apiKey,
+        },
       },
-    });
+    );
 
     expect(stopResponse.ok()).toBeTruthy();
     const stopData = await stopResponse.json();
     expect(stopData.success).toBe(true);
 
-    console.log('✓ Stream stopped');
+    console.log("✓ Stream stopped");
 
     // Step 8: Delete stream
-    console.log('Step 8: Deleting stream...');
+    console.log("Step 8: Deleting stream...");
     const deleteResponse = await request.delete(`/api/v1/streams/${streamId}`, {
       headers: {
-        'X-API-Key': apiKey,
+        "X-API-Key": apiKey,
       },
     });
 
@@ -154,27 +167,30 @@ test.describe('E2E Stream Management Flow', () => {
     const deleteData = await deleteResponse.json();
     expect(deleteData.success).toBe(true);
 
-    console.log('✓ Stream deleted');
+    console.log("✓ Stream deleted");
 
     // Step 9: Verify stream is deleted
-    console.log('Step 9: Verifying stream deletion...');
-    const verifyDeleteResponse = await request.get(`/api/v1/streams/${streamId}`, {
-      headers: {
-        'X-API-Key': apiKey,
+    console.log("Step 9: Verifying stream deletion...");
+    const verifyDeleteResponse = await request.get(
+      `/api/v1/streams/${streamId}`,
+      {
+        headers: {
+          "X-API-Key": apiKey,
+        },
       },
-    });
+    );
 
     expect(verifyDeleteResponse.status()).toBe(404);
 
-    console.log('✓ Stream deletion verified');
-    console.log('\n🎉 E2E test completed successfully!');
+    console.log("✓ Stream deletion verified");
+    console.log("\n🎉 E2E test completed successfully!");
   });
 
-  test('E2E: WebSocket chat connection', async ({ request }) => {
+  test("E2E: WebSocket chat connection", async ({ request }) => {
     // Create a community and stream first
-    const communityResponse = await request.post('/api/v1/communities', {
+    const communityResponse = await request.post("/api/v1/communities", {
       data: {
-        name: 'WebSocket Test Community',
+        name: "WebSocket Test Community",
       },
     });
 
@@ -182,16 +198,16 @@ test.describe('E2E Stream Management Flow', () => {
     const testApiKey = communityData.data.apiKey;
     const testCommunityId = communityData.data.id;
 
-    const streamResponse = await request.post('/api/v1/streams', {
+    const streamResponse = await request.post("/api/v1/streams", {
       headers: {
-        'X-API-Key': testApiKey,
+        "X-API-Key": testApiKey,
       },
       data: {
-        title: 'WebSocket Test Stream',
-        description: 'Testing WebSocket functionality',
-        rtmpUrl: 'rtmp://test.example.com/live',
-        rtmpKey: 'ws-test-key',
-        platforms: ['youtube'],
+        title: "WebSocket Test Stream",
+        description: "Testing WebSocket functionality",
+        rtmpUrl: "rtmp://test.example.com/live",
+        rtmpKey: "ws-test-key",
+        platforms: ["youtube"],
       },
     });
 
@@ -204,16 +220,16 @@ test.describe('E2E Stream Management Flow', () => {
     expect(testStreamId).toBeDefined();
     expect(testApiKey).toBeDefined();
 
-    console.log('✓ Stream ready for WebSocket chat connections');
+    console.log("✓ Stream ready for WebSocket chat connections");
     console.log(`  Stream ID: ${testStreamId}`);
     console.log(`  WebSocket URL would be: ws://localhost:3000/ws/chat`);
   });
 
-  test('E2E: Multi-platform stream creation', async ({ request }) => {
+  test("E2E: Multi-platform stream creation", async ({ request }) => {
     // Create community
-    const communityResponse = await request.post('/api/v1/communities', {
+    const communityResponse = await request.post("/api/v1/communities", {
       data: {
-        name: 'Multi-Platform Test Community',
+        name: "Multi-Platform Test Community",
       },
     });
 
@@ -221,16 +237,16 @@ test.describe('E2E Stream Management Flow', () => {
     const testApiKey = communityData.data.apiKey;
 
     // Create stream for multiple platforms
-    const streamResponse = await request.post('/api/v1/streams', {
+    const streamResponse = await request.post("/api/v1/streams", {
       headers: {
-        'X-API-Key': testApiKey,
+        "X-API-Key": testApiKey,
       },
       data: {
-        title: 'Multi-Platform Test Stream',
-        description: 'Testing YouTube and Facebook simultaneously',
-        rtmpUrl: 'rtmp://test.example.com/live',
-        rtmpKey: 'multi-platform-key',
-        platforms: ['youtube', 'facebook'],
+        title: "Multi-Platform Test Stream",
+        description: "Testing YouTube and Facebook simultaneously",
+        rtmpUrl: "rtmp://test.example.com/live",
+        rtmpKey: "multi-platform-key",
+        platforms: ["youtube", "facebook"],
         scheduledStartTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
       },
     });
@@ -239,27 +255,27 @@ test.describe('E2E Stream Management Flow', () => {
     const streamData = await streamResponse.json();
     expect(streamData.success).toBe(true);
     expect(streamData.data.stream.platforms).toHaveLength(2);
-    expect(streamData.data.stream.platforms).toContain('youtube');
-    expect(streamData.data.stream.platforms).toContain('facebook');
+    expect(streamData.data.stream.platforms).toContain("youtube");
+    expect(streamData.data.stream.platforms).toContain("facebook");
     expect(streamData.data.stream.scheduledStartTime).toBeDefined();
 
     // Verify platform streams were created (or attempted with graceful failure)
     expect(streamData.data.platformStreams).toHaveLength(2);
 
-    console.log('✓ Multi-platform stream configuration created');
-    console.log(`  Platforms: ${streamData.data.stream.platforms.join(', ')}`);
+    console.log("✓ Multi-platform stream configuration created");
+    console.log(`  Platforms: ${streamData.data.stream.platforms.join(", ")}`);
   });
 
-  test('E2E: Error handling - invalid API key', async ({ request }) => {
-    const response = await request.post('/api/v1/streams', {
+  test("E2E: Error handling - invalid API key", async ({ request }) => {
+    const response = await request.post("/api/v1/streams", {
       headers: {
-        'X-API-Key': 'omni_invalid_key_12345',
+        "X-API-Key": "omni_invalid_key_12345",
       },
       data: {
-        title: 'Should Fail',
-        rtmpUrl: 'rtmp://test.example.com',
-        rtmpKey: 'key',
-        platforms: ['youtube'],
+        title: "Should Fail",
+        rtmpUrl: "rtmp://test.example.com",
+        rtmpKey: "key",
+        platforms: ["youtube"],
       },
     });
 
@@ -269,25 +285,25 @@ test.describe('E2E Stream Management Flow', () => {
     expect(data.success).toBe(false);
     expect(data.error).toBeDefined();
 
-    console.log('✓ Invalid API key properly rejected');
+    console.log("✓ Invalid API key properly rejected");
   });
 
-  test('E2E: Error handling - missing required fields', async ({ request }) => {
-    const communityResponse = await request.post('/api/v1/communities', {
+  test("E2E: Error handling - missing required fields", async ({ request }) => {
+    const communityResponse = await request.post("/api/v1/communities", {
       data: {
-        name: 'Validation Test Community',
+        name: "Validation Test Community",
       },
     });
 
     const communityData = await communityResponse.json();
     const testApiKey = communityData.data.apiKey;
 
-    const response = await request.post('/api/v1/streams', {
+    const response = await request.post("/api/v1/streams", {
       headers: {
-        'X-API-Key': testApiKey,
+        "X-API-Key": testApiKey,
       },
       data: {
-        title: 'Incomplete Stream',
+        title: "Incomplete Stream",
         // Missing rtmpUrl, rtmpKey, platforms
       },
     });
@@ -297,6 +313,6 @@ test.describe('E2E Stream Management Flow', () => {
     expect(data.success).toBe(false);
     expect(data.error).toBeDefined();
 
-    console.log('✓ Missing required fields properly validated');
+    console.log("✓ Missing required fields properly validated");
   });
 });

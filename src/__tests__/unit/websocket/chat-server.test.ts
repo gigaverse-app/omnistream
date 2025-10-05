@@ -2,13 +2,13 @@
  * Unit tests for WebSocket chat server
  */
 
-import http from 'http';
-import WebSocket from 'ws';
-import { ChatServer } from '../../../websocket/chat-server.js';
-import { db } from '../../../database/index.js';
-import { Platform } from '../../../core/interfaces.js';
+import http from "http";
+import WebSocket from "ws";
+import { ChatServer } from "../../../websocket/chat-server.js";
+import { db } from "../../../database/index.js";
+import { Platform } from "../../../core/interfaces.js";
 
-describe('ChatServer', () => {
+describe("ChatServer", () => {
   let server: http.Server;
   let chatServer: ChatServer;
   let community: any;
@@ -30,12 +30,12 @@ describe('ChatServer', () => {
 
   beforeEach(async () => {
     // Create test data
-    community = await db.createCommunity('WebSocket Test Community');
+    community = await db.createCommunity("WebSocket Test Community");
     stream = await db.createStream({
       communityId: community.id,
-      title: 'Test Stream',
-      rtmpUrl: 'rtmp://example.com',
-      rtmpKey: 'key',
+      title: "Test Stream",
+      rtmpUrl: "rtmp://example.com",
+      rtmpKey: "key",
       platforms: [Platform.YOUTUBE],
     });
 
@@ -52,120 +52,120 @@ describe('ChatServer', () => {
   const connectWebSocket = (): Promise<WebSocket> => {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(`ws://localhost:${port}/ws/chat`);
-      ws.on('open', () => resolve(ws));
-      ws.on('error', reject);
+      ws.on("open", () => resolve(ws));
+      ws.on("error", reject);
     });
   };
 
   const waitForMessage = (ws: WebSocket): Promise<any> => {
     return new Promise((resolve) => {
-      ws.once('message', (data) => {
+      ws.once("message", (data) => {
         resolve(JSON.parse(data.toString()));
       });
     });
   };
 
-  it('should accept WebSocket connections', async () => {
+  it("should accept WebSocket connections", async () => {
     const ws = await connectWebSocket();
     expect(ws.readyState).toBe(WebSocket.OPEN);
     ws.close();
   });
 
-  it('should send welcome message on connection', async () => {
+  it("should send welcome message on connection", async () => {
     const ws = await connectWebSocket();
     const message = await waitForMessage(ws);
 
-    expect(message.type).toBe('connected');
-    expect(message.message).toContain('Connected to Omnistream');
+    expect(message.type).toBe("connected");
+    expect(message.message).toContain("Connected to Omnistream");
 
     ws.close();
   });
 
-  it('should require authentication for subscription', async () => {
+  it("should require authentication for subscription", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
-      })
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('error');
-    expect(response.message).toContain('API key');
+    expect(response.type).toBe("error");
+    expect(response.message).toContain("API key");
 
     ws.close();
   });
 
-  it('should reject invalid API key', async () => {
+  it("should reject invalid API key", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
-        apiKey: 'invalid-key',
-      })
+        apiKey: "invalid-key",
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('error');
-    expect(response.message).toContain('Invalid API key');
+    expect(response.type).toBe("error");
+    expect(response.message).toContain("Invalid API key");
 
     ws.close();
   });
 
-  it('should reject subscription to non-existent stream', async () => {
+  it("should reject subscription to non-existent stream", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
-        streamId: 'non-existent-id',
+        type: "subscribe",
+        streamId: "non-existent-id",
         apiKey: community.apiKey,
-      })
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('error');
-    expect(response.message).toContain('Stream not found');
+    expect(response.type).toBe("error");
+    expect(response.message).toContain("Stream not found");
 
     ws.close();
   });
 
-  it('should successfully subscribe to stream', async () => {
+  it("should successfully subscribe to stream", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('subscribed');
+    expect(response.type).toBe("subscribed");
     expect(response.streamId).toBe(stream.id);
 
     ws.close();
   });
 
-  it('should broadcast new chat messages to subscribers', async () => {
+  it("should broadcast new chat messages to subscribers", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
     await waitForMessage(ws); // Skip subscribed message
 
@@ -173,10 +173,10 @@ describe('ChatServer', () => {
     await db.addChatMessage({
       streamId: stream.id,
       platform: Platform.YOUTUBE,
-      authorId: 'author123',
-      authorName: 'Test User',
-      authorImageUrl: 'https://example.com/avatar.jpg',
-      message: 'Hello world!',
+      authorId: "author123",
+      authorName: "Test User",
+      authorImageUrl: "https://example.com/avatar.jpg",
+      message: "Hello world!",
       timestamp: new Date(),
       highlighted: false,
     });
@@ -186,44 +186,44 @@ describe('ChatServer', () => {
     ws.close();
   });
 
-  it('should handle unsubscribe messages', async () => {
+  it("should handle unsubscribe messages", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     // Subscribe first
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
     await waitForMessage(ws); // Skip subscribed message
 
     // Now unsubscribe
     ws.send(
       JSON.stringify({
-        type: 'unsubscribe',
-      })
+        type: "unsubscribe",
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('unsubscribed');
+    expect(response.type).toBe("unsubscribed");
 
     ws.close();
   });
 
-  it('should handle highlight requests', async () => {
+  it("should handle highlight requests", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     // Subscribe first
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
     await waitForMessage(ws); // Skip subscribed message
 
@@ -231,9 +231,9 @@ describe('ChatServer', () => {
     const message = await db.addChatMessage({
       streamId: stream.id,
       platform: Platform.YOUTUBE,
-      authorId: 'author123',
-      authorName: 'Test User',
-      message: 'Highlight me!',
+      authorId: "author123",
+      authorName: "Test User",
+      message: "Highlight me!",
       timestamp: new Date(),
       highlighted: false,
     });
@@ -241,57 +241,57 @@ describe('ChatServer', () => {
     // Request highlight
     ws.send(
       JSON.stringify({
-        type: 'highlight',
+        type: "highlight",
         messageId: message.id,
         platform: Platform.YOUTUBE,
-      })
+      }),
     );
 
     // Note: Highlight feature returns warning since platforms don't support it
     const response = await waitForMessage(ws);
-    expect(['highlighted', 'error']).toContain(response.type);
+    expect(["highlighted", "error"]).toContain(response.type);
 
     ws.close();
   });
 
-  it('should handle invalid message types', async () => {
+  it("should handle invalid message types", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'invalid-type',
-      })
+        type: "invalid-type",
+      }),
     );
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('error');
+    expect(response.type).toBe("error");
 
     ws.close();
   });
 
-  it('should handle malformed JSON', async () => {
+  it("should handle malformed JSON", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
-    ws.send('this is not json');
+    ws.send("this is not json");
 
     const response = await waitForMessage(ws);
-    expect(response.type).toBe('error');
+    expect(response.type).toBe("error");
 
     ws.close();
   });
 
-  it('should handle client disconnect gracefully', async () => {
+  it("should handle client disconnect gracefully", async () => {
     const ws = await connectWebSocket();
     await waitForMessage(ws); // Skip welcome message
 
     ws.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
     await waitForMessage(ws); // Skip subscribed message
 
@@ -305,7 +305,7 @@ describe('ChatServer', () => {
     // (no assertion needed, just checking it doesn't crash)
   });
 
-  it('should support multiple concurrent connections', async () => {
+  it("should support multiple concurrent connections", async () => {
     const ws1 = await connectWebSocket();
     const ws2 = await connectWebSocket();
 
@@ -315,25 +315,25 @@ describe('ChatServer', () => {
     // Both subscribe to same stream
     ws1.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
 
     ws2.send(
       JSON.stringify({
-        type: 'subscribe',
+        type: "subscribe",
         streamId: stream.id,
         apiKey: community.apiKey,
-      })
+      }),
     );
 
     const response1 = await waitForMessage(ws1);
     const response2 = await waitForMessage(ws2);
 
-    expect(response1.type).toBe('subscribed');
-    expect(response2.type).toBe('subscribed');
+    expect(response1.type).toBe("subscribed");
+    expect(response2.type).toBe("subscribed");
 
     ws1.close();
     ws2.close();

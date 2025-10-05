@@ -15,7 +15,8 @@
     "demo": "tsx demo/demo-stream.ts",
     "demo:simple": "tsx demo/simple-demo.ts",
     "lint": "eslint src --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
     "@playwright/test": "^1.55.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
@@ -39,7 +41,10 @@
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "eslint": "^9.37.0",
+    "globals": "^16.4.0",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.3",
     "nodemon": "^3.1.10",
     "playwright": "^1.55.1",
     "prettier": "^3.6.2",
