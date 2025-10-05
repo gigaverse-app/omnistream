@@ -339,20 +339,29 @@ export class ChatServer {
       }
       this.pollIntervals.clear();
 
-      // Close all client connections first
+      // Forcefully terminate all client connections
       for (const client of this.clients.values()) {
-        if (
-          client.ws.readyState === WebSocket.OPEN ||
-          client.ws.readyState === WebSocket.CONNECTING
-        ) {
-          client.ws.close();
+        try {
+          client.ws.terminate();
+        } catch {
+          // Ignore termination errors
         }
       }
       this.clients.clear();
 
-      // Close WebSocket server
-      this.wss.close(() => {
-        logger.info('Chat server closed');
+      // Close WebSocket server with timeout
+      const timeout = setTimeout(() => {
+        logger.info('Chat server close timeout, forcing closure');
+        resolve();
+      }, 1000);
+
+      this.wss.close((err) => {
+        clearTimeout(timeout);
+        if (err) {
+          logger.error('Chat server close error', err);
+        } else {
+          logger.info('Chat server closed');
+        }
         resolve();
       });
     });
