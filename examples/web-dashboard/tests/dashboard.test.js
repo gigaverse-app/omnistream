@@ -62,7 +62,9 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
 
     // Verify platforms section
     await expect(page.locator('#platforms-section')).toBeVisible();
-    await expect(page.locator('#platforms-section h2')).toContainText('Connect Streaming Platforms');
+    await expect(page.locator('#platforms-section h2')).toContainText(
+      'Connect Streaming Platforms'
+    );
 
     // Verify platform cards exist
     await expect(page.locator('.platform-card')).toHaveCount(3); // YouTube, Facebook, TikTok
@@ -111,7 +113,9 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     await expect(page.locator('#stream-status')).toHaveClass(/error/);
   });
 
-  test('should show validation error when creating stream without selecting platforms', async ({ page }) => {
+  test('should show validation error when creating stream without selecting platforms', async ({
+    page,
+  }) => {
     // Create community first
     await page.fill('#community-name', communityName);
     await page.click('button:has-text("Create Community")');

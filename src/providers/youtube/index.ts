@@ -5,12 +5,12 @@
 
 import axios from 'axios';
 import {
-  StreamProvider,
-  Platform,
-  OAuthToken,
-  StreamConfig,
-  PlatformStream,
   ChatMessage,
+  OAuthToken,
+  Platform,
+  PlatformStream,
+  StreamConfig,
+  StreamProvider,
   StreamStatus,
 } from '../../core/interfaces.js';
 import { PlatformError, UnsupportedFeatureError } from '../../core/errors.js';
@@ -29,7 +29,8 @@ export class YouTubeProvider implements StreamProvider {
       client_id: config.youtube.clientId,
       redirect_uri: redirectUri,
       response_type: 'code',
-      scope: 'https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtube.readonly',
+      scope:
+        'https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtube.readonly',
       access_type: 'offline',
       prompt: 'consent',
       state: communityId,
@@ -80,7 +81,7 @@ export class YouTubeProvider implements StreamProvider {
 
       return {
         accessToken: access_token,
-        refreshToken: refreshToken,
+        refreshToken,
         expiresAt: new Date(Date.now() + expires_in * 1000),
         scope: scope ? scope.split(' ') : [],
       };
@@ -145,18 +146,14 @@ export class YouTubeProvider implements StreamProvider {
       const broadcastId = broadcastResponse.data.id;
       const streamId = streamResponse.data.id;
 
-      await axios.post(
-        `${this.YOUTUBE_API_BASE}/liveBroadcasts/bind`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            id: broadcastId,
-            streamId: streamId,
-            part: 'id,snippet,status',
-          },
-        }
-      );
+      await axios.post(`${this.YOUTUBE_API_BASE}/liveBroadcasts/bind`, null, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          id: broadcastId,
+          streamId,
+          part: 'id,snippet,status',
+        },
+      });
 
       logger.info('YouTube stream created', {
         communityId,
@@ -178,18 +175,14 @@ export class YouTubeProvider implements StreamProvider {
 
   async startStream(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream> {
     try {
-      await axios.post(
-        `${this.YOUTUBE_API_BASE}/liveBroadcasts/transition`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            broadcastStatus: 'live',
-            id: platformStreamId,
-            part: 'status',
-          },
-        }
-      );
+      await axios.post(`${this.YOUTUBE_API_BASE}/liveBroadcasts/transition`, null, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          broadcastStatus: 'live',
+          id: platformStreamId,
+          part: 'status',
+        },
+      });
 
       logger.info('YouTube stream started', { platformStreamId });
 
@@ -207,18 +200,14 @@ export class YouTubeProvider implements StreamProvider {
 
   async stopStream(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream> {
     try {
-      await axios.post(
-        `${this.YOUTUBE_API_BASE}/liveBroadcasts/transition`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            broadcastStatus: 'complete',
-            id: platformStreamId,
-            part: 'status',
-          },
-        }
-      );
+      await axios.post(`${this.YOUTUBE_API_BASE}/liveBroadcasts/transition`, null, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          broadcastStatus: 'complete',
+          id: platformStreamId,
+          part: 'status',
+        },
+      });
 
       logger.info('YouTube stream stopped', { platformStreamId });
 
@@ -235,16 +224,13 @@ export class YouTubeProvider implements StreamProvider {
 
   async getStreamStatus(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream> {
     try {
-      const response = await axios.get(
-        `${this.YOUTUBE_API_BASE}/liveBroadcasts`,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            part: 'snippet,status,statistics',
-            id: platformStreamId,
-          },
-        }
-      );
+      const response = await axios.get(`${this.YOUTUBE_API_BASE}/liveBroadcasts`, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          part: 'snippet,status,statistics',
+          id: platformStreamId,
+        },
+      });
 
       if (!response.data.items || response.data.items.length === 0) {
         throw new PlatformError('YouTube', 'Stream not found', 404);
@@ -292,16 +278,13 @@ export class YouTubeProvider implements StreamProvider {
   ): Promise<ChatMessage[]> {
     try {
       // First get the live chat ID from the broadcast
-      const broadcastResponse = await axios.get(
-        `${this.YOUTUBE_API_BASE}/liveBroadcasts`,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            part: 'snippet',
-            id: platformStreamId,
-          },
-        }
-      );
+      const broadcastResponse = await axios.get(`${this.YOUTUBE_API_BASE}/liveBroadcasts`, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          part: 'snippet',
+          id: platformStreamId,
+        },
+      });
 
       if (!broadcastResponse.data.items || broadcastResponse.data.items.length === 0) {
         return [];
@@ -313,17 +296,14 @@ export class YouTubeProvider implements StreamProvider {
       }
 
       // Get chat messages
-      const chatResponse = await axios.get(
-        `${this.YOUTUBE_API_BASE}/liveChat/messages`,
-        {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-          params: {
-            liveChatId,
-            part: 'snippet,authorDetails',
-            maxResults: 200,
-          },
-        }
-      );
+      const chatResponse = await axios.get(`${this.YOUTUBE_API_BASE}/liveChat/messages`, {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+        params: {
+          liveChatId,
+          part: 'snippet,authorDetails',
+          maxResults: 200,
+        },
+      });
 
       const messages: ChatMessage[] = [];
       for (const item of chatResponse.data.items || []) {

@@ -3,19 +3,20 @@
  * Main server entry point
  */
 
-import express from "express";
-import cors from "cors";
-import http from "http";
-import { config } from "./utils/config.js";
-import { logger } from "./utils/logger.js";
-import { errorHandler } from "./api/middleware/error-handler.js";
-import { rateLimit } from "./api/middleware/rate-limiter.js";
-import { ChatServer } from "./websocket/chat-server.js";
+import express from 'express';
+import cors from 'cors';
+import http from 'http';
+import { config } from './utils/config.js';
+import { logger } from './utils/logger.js';
+import { OAuthConfigValidator } from './utils/oauth-config-validator.js';
+import { errorHandler } from './api/middleware/error-handler.js';
+import { rateLimit } from './api/middleware/rate-limiter.js';
+import { ChatServer } from './websocket/chat-server.js';
 
 // Import routes
-import communitiesRouter from "./api/routes/communities.js";
-import authRouter from "./api/routes/auth.js";
-import streamsRouter from "./api/routes/streams.js";
+import communitiesRouter from './api/routes/communities.js';
+import authRouter from './api/routes/auth.js';
+import streamsRouter from './api/routes/streams.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -26,35 +27,38 @@ app.use(express.json());
 app.use(rateLimit);
 
 // Serve static files from public directory
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 // Health check endpoint
-app.get("/health", (_req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
-    status: "ok",
+    status: 'ok',
     timestamp: new Date().toISOString(),
   });
 });
 
 // Dashboard route
-app.get("/dashboard", (_req, res) => {
-  res.sendFile("dashboard.html", { root: "public" });
+app.get('/dashboard', (_req, res) => {
+  res.sendFile('dashboard.html', { root: 'public' });
 });
 
 // API routes
-app.use("/api/v1/communities", communitiesRouter);
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/streams", streamsRouter);
+app.use('/api/v1/communities', communitiesRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/streams', streamsRouter);
 
 // Error handler (must be last)
 app.use(errorHandler);
+
+// Validate OAuth configuration on startup
+OAuthConfigValidator.validateAndLog();
 
 // Initialize WebSocket chat server
 const chatServer = new ChatServer(server);
 
 // Start server
 server.listen(config.port, () => {
-  logger.info("Omnistream server started", {
+  logger.info('Omnistream server started', {
     port: config.port,
     nodeEnv: config.nodeEnv,
   });
@@ -63,20 +67,20 @@ server.listen(config.port, () => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
-  logger.info("SIGTERM received, shutting down gracefully");
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully');
   chatServer.close();
   server.close(() => {
-    logger.info("Server closed");
+    logger.info('Server closed');
     process.exit(0);
   });
 });
 
-process.on("SIGINT", () => {
-  logger.info("SIGINT received, shutting down gracefully");
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully');
   chatServer.close();
   server.close(() => {
-    logger.info("Server closed");
+    logger.info('Server closed');
     process.exit(0);
   });
 });

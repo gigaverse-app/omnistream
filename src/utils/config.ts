@@ -52,19 +52,28 @@ export const config: Config = {
   youtube: {
     clientId: getEnvVarOptional('YOUTUBE_CLIENT_ID', ''),
     clientSecret: getEnvVarOptional('YOUTUBE_CLIENT_SECRET', ''),
-    redirectUri: getEnvVarOptional('YOUTUBE_REDIRECT_URI', 'http://localhost:3000/api/v1/auth/youtube/callback'),
+    redirectUri: getEnvVarOptional(
+      'YOUTUBE_REDIRECT_URI',
+      'http://localhost:3000/api/v1/auth/youtube/callback'
+    ),
   },
 
   facebook: {
     appId: getEnvVarOptional('FACEBOOK_APP_ID', ''),
     appSecret: getEnvVarOptional('FACEBOOK_APP_SECRET', ''),
-    redirectUri: getEnvVarOptional('FACEBOOK_REDIRECT_URI', 'http://localhost:3000/api/v1/auth/facebook/callback'),
+    redirectUri: getEnvVarOptional(
+      'FACEBOOK_REDIRECT_URI',
+      'http://localhost:3000/api/v1/auth/facebook/callback'
+    ),
   },
 
   tiktok: {
     clientKey: getEnvVarOptional('TIKTOK_CLIENT_KEY', ''),
     clientSecret: getEnvVarOptional('TIKTOK_CLIENT_SECRET', ''),
-    redirectUri: getEnvVarOptional('TIKTOK_REDIRECT_URI', 'http://localhost:3000/api/v1/auth/tiktok/callback'),
+    redirectUri: getEnvVarOptional(
+      'TIKTOK_REDIRECT_URI',
+      'http://localhost:3000/api/v1/auth/tiktok/callback'
+    ),
   },
 
   security: {

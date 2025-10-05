@@ -1,15 +1,15 @@
 {
   "name": "omnistream",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
-  
+
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     }
   },
-  
+
   "postCreateCommand": "bash .devcontainer/setup.sh",
-  
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -24,6 +24,6 @@
       }
     }
   },
-  
+
   "forwardPorts": [3000]
 }

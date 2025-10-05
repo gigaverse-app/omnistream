@@ -19,7 +19,7 @@ const sessions = new Map();
 // Routes
 app.get('/', (req, res) => {
   res.render('index', {
-    omnistreamUrl: OMNISTREAM_API_URL
+    omnistreamUrl: OMNISTREAM_API_URL,
   });
 });
 
@@ -31,7 +31,9 @@ app.post('/api/communities', async (req, res) => {
     const response = await axios.post(`${OMNISTREAM_API_URL}/api/v1/communities`, req.body);
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to create community', success: false });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to create community', success: false });
   }
 });
 
@@ -41,7 +43,9 @@ app.get('/api/communities', async (req, res) => {
     const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch communities', success: false });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to fetch communities', success: false });
   }
 });
 
@@ -56,7 +60,7 @@ app.get('/api/community', async (req, res) => {
     // List all communities and find the one with matching API key
     const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     const communities = response.data.data || [];
-    const community = communities.find(c => c.apiKey === apiKey);
+    const community = communities.find((c) => c.apiKey === apiKey);
 
     if (!community) {
       return res.status(404).json({ success: false, error: 'Community not found' });
@@ -64,7 +68,9 @@ app.get('/api/community', async (req, res) => {
 
     res.json({ success: true, data: community });
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch community', success: false });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to fetch community', success: false });
   }
 });
 
@@ -79,7 +85,7 @@ app.get('/api/platforms', async (req, res) => {
     // Get community info
     const communitiesResponse = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     const communities = communitiesResponse.data.data || [];
-    const community = communities.find(c => c.apiKey === apiKey);
+    const community = communities.find((c) => c.apiKey === apiKey);
 
     if (!community) {
       return res.status(404).json({ success: false, error: 'Community not found' });
@@ -91,25 +97,27 @@ app.get('/api/platforms', async (req, res) => {
         name: 'youtube',
         displayName: 'YouTube',
         connected: false, // Will be determined by OAuth tokens in real implementation
-        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/youtube/callback?communityId=${community.id}`
+        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/youtube/callback?communityId=${community.id}`,
       },
       {
         name: 'facebook',
         displayName: 'Facebook',
         connected: false,
-        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/facebook/callback?communityId=${community.id}`
+        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/facebook/callback?communityId=${community.id}`,
       },
       {
         name: 'tiktok',
         displayName: 'TikTok',
         connected: false,
-        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/tiktok/callback?communityId=${community.id}`
-      }
+        authUrl: `${OMNISTREAM_API_URL}/api/v1/auth/tiktok/callback?communityId=${community.id}`,
+      },
     ];
 
     res.json({ success: true, platforms });
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch platforms', success: false });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to fetch platforms', success: false });
   }
 });
 
@@ -124,7 +132,7 @@ app.get('/api/auth/:platform/authorize', async (req, res) => {
     // Get community info
     const communitiesResponse = await axios.get(`${OMNISTREAM_API_URL}/api/v1/communities`);
     const communities = communitiesResponse.data.data || [];
-    const community = communities.find(c => c.apiKey === apiKey);
+    const community = communities.find((c) => c.apiKey === apiKey);
 
     if (!community) {
       return res.status(404).json({ success: false, error: 'Community not found' });
@@ -133,12 +141,14 @@ app.get('/api/auth/:platform/authorize', async (req, res) => {
     const response = await axios.get(
       `${OMNISTREAM_API_URL}/api/v1/auth/${req.params.platform}/authorize`,
       {
-        params: { communityId: community.id }
+        params: { communityId: community.id },
       }
     );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to get auth URL', success: false });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to get auth URL', success: false });
   }
 });
 
@@ -146,11 +156,13 @@ app.post('/api/streams', async (req, res) => {
   try {
     const apiKey = req.headers['x-api-key'];
     const response = await axios.post(`${OMNISTREAM_API_URL}/api/v1/streams`, req.body, {
-      headers: { 'x-api-key': apiKey }
+      headers: { 'x-api-key': apiKey },
     });
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to create stream' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to create stream' });
   }
 });
 
@@ -158,23 +170,30 @@ app.get('/api/streams', async (req, res) => {
   try {
     const apiKey = req.headers['x-api-key'];
     const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/streams`, {
-      headers: { 'x-api-key': apiKey }
+      headers: { 'x-api-key': apiKey },
     });
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch streams' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to fetch streams' });
   }
 });
 
 app.get('/api/streams/:streamId', async (req, res) => {
   try {
     const apiKey = req.headers['x-api-key'];
-    const response = await axios.get(`${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`, {
-      headers: { 'x-api-key': apiKey }
-    });
+    const response = await axios.get(
+      `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`,
+      {
+        headers: { 'x-api-key': apiKey },
+      }
+    );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch stream' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to fetch stream' });
   }
 });
 
@@ -185,12 +204,14 @@ app.post('/api/streams/:streamId/start', async (req, res) => {
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}/start`,
       req.body,
       {
-        headers: { 'x-api-key': apiKey }
+        headers: { 'x-api-key': apiKey },
       }
     );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to start stream' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to start stream' });
   }
 });
 
@@ -201,24 +222,31 @@ app.post('/api/streams/:streamId/stop', async (req, res) => {
       `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}/stop`,
       {},
       {
-        headers: { 'x-api-key': apiKey }
+        headers: { 'x-api-key': apiKey },
       }
     );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to stop stream' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to stop stream' });
   }
 });
 
 app.delete('/api/streams/:streamId', async (req, res) => {
   try {
     const apiKey = req.headers['x-api-key'];
-    const response = await axios.delete(`${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`, {
-      headers: { 'x-api-key': apiKey }
-    });
+    const response = await axios.delete(
+      `${OMNISTREAM_API_URL}/api/v1/streams/${req.params.streamId}`,
+      {
+        headers: { 'x-api-key': apiKey },
+      }
+    );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to delete stream' });
+    res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { error: 'Failed to delete stream' });
   }
 });
 

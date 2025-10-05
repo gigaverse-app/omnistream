@@ -12,10 +12,18 @@
     "test:coverage": "jest --coverage",
     "test:integration": "playwright test",
     "test:e2e": "playwright test src/__tests__/integration/e2e-stream.test.ts",
+    "test:all": "npm run test && npm run test:integration",
     "demo": "tsx demo/demo-stream.ts",
     "demo:simple": "tsx demo/simple-demo.ts",
-    "lint": "eslint src --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,js,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md,yml,yaml}\"",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run format:check && npm run typecheck",
+    "fix": "npm run lint:fix && npm run format",
+    "validate": "npm run check && npm run test && npm run build",
+    "setup": "npm install && npm run prepare",
     "prepare": "husky"
   },
   "keywords": [],
@@ -56,5 +64,14 @@
   "overrides": {
     "test-exclude": "^7.0.1",
     "glob": "^10.4.5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

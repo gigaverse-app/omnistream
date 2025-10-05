@@ -77,9 +77,7 @@ async function runDemo() {
     console.log('   📺 Platforms:', stream.platforms.join(', '));
     console.log('   📊 Platform streams:');
     for (const ps of platformStreams) {
-      console.log(
-        `      - ${ps.platform}: ${ps.status}${ps.error ? ' (' + ps.error + ')' : ''}`
-      );
+      console.log(`      - ${ps.platform}: ${ps.status}${ps.error ? ' (' + ps.error + ')' : ''}`);
     }
 
     // List streams

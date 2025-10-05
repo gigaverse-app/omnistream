@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: omnistream-api
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       # Server
       - PORT=3000
@@ -48,7 +48,7 @@ services:
     networks:
       - omnistream-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -65,12 +65,12 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
     restart: unless-stopped
     networks:
       - omnistream-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U omnistream"]
+      test: ['CMD-SHELL', 'pg_isready -U omnistream']
       interval: 10s
       timeout: 5s
       retries: 5

@@ -80,9 +80,8 @@ class Logger {
   }
 
   error(message: string, error?: Error | unknown): void {
-    const errorData = error instanceof Error
-      ? { message: error.message, stack: error.stack }
-      : error;
+    const errorData =
+      error instanceof Error ? { message: error.message, stack: error.stack } : error;
     this.log('error', message, errorData);
   }
 

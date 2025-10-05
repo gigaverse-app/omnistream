@@ -4,12 +4,12 @@
  */
 
 import {
-  StreamProvider,
-  Platform,
-  OAuthToken,
-  StreamConfig,
-  PlatformStream,
   ChatMessage,
+  OAuthToken,
+  Platform,
+  PlatformStream,
+  StreamConfig,
+  StreamProvider,
 } from '../../core/interfaces.js';
 import { UnsupportedFeatureError } from '../../core/errors.js';
 import { config } from '../../utils/config.js';
@@ -38,7 +38,7 @@ export class TikTokProvider implements StreamProvider {
     throw new UnsupportedFeatureError(
       'TikTok',
       'OAuth token exchange - TikTok LIVE Access API requires special approval from TikTok. ' +
-      'Apply at https://developers.tiktok.com/apps/'
+        'Apply at https://developers.tiktok.com/apps/'
     );
   }
 
@@ -57,7 +57,7 @@ export class TikTokProvider implements StreamProvider {
     throw new UnsupportedFeatureError(
       'TikTok',
       'Stream creation - TikTok LIVE Access API requires special approval. ' +
-      'Live streaming on TikTok must be initiated from the mobile app.'
+        'Live streaming on TikTok must be initiated from the mobile app.'
     );
   }
 

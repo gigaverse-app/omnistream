@@ -14,7 +14,8 @@ export default [
       'test-results/**',
       '*.config.js',
       '*.config.ts',
-      'examples/**/node_modules/**',
+      'demo/**',
+      'examples/**',
       'public/**',
     ],
   },
@@ -30,7 +31,7 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         ...globals.node,
@@ -85,7 +86,7 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         ...globals.node,

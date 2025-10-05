@@ -2,7 +2,7 @@
  * WebSocket server for real-time chat
  */
 
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocket, WebSocketServer } from 'ws';
 import { Server } from 'http';
 import { db } from '../database/index.js';
 import { providerRegistry } from '../providers/index.js';
@@ -36,10 +36,12 @@ export class ChatServer {
           await this.handleMessage(ws, message);
         } catch (error) {
           logger.error('WebSocket message error', error);
-          ws.send(JSON.stringify({
-            type: 'error',
-            error: 'Invalid message format',
-          }));
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              error: 'Invalid message format',
+            })
+          );
         }
       });
 
@@ -66,10 +68,12 @@ export class ChatServer {
         await this.handleHighlight(ws, message);
         break;
       default:
-        ws.send(JSON.stringify({
-          type: 'error',
-          error: 'Unknown message type',
-        }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            error: 'Unknown message type',
+          })
+        );
     }
   }
 
@@ -77,10 +81,12 @@ export class ChatServer {
     const { streamId, apiKey } = message;
 
     if (!streamId || !apiKey) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        error: 'streamId and apiKey are required',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          error: 'streamId and apiKey are required',
+        })
+      );
       return;
     }
 
@@ -91,10 +97,12 @@ export class ChatServer {
       // Verify stream exists and belongs to community
       const stream = await db.getStream(streamId);
       if (stream.communityId !== community.id) {
-        ws.send(JSON.stringify({
-          type: 'error',
-          error: 'Stream not found',
-        }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            error: 'Stream not found',
+          })
+        );
         return;
       }
 
@@ -114,18 +122,22 @@ export class ChatServer {
         this.startPolling(streamId, community.id);
       }
 
-      ws.send(JSON.stringify({
-        type: 'subscribed',
-        streamId,
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'subscribed',
+          streamId,
+        })
+      );
 
       logger.info('Client subscribed to stream', { streamId, communityId: community.id });
     } catch (error) {
       logger.error('Subscribe error', error);
-      ws.send(JSON.stringify({
-        type: 'error',
-        error: 'Authentication failed',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          error: 'Authentication failed',
+        })
+      );
     }
   }
 
@@ -155,20 +167,24 @@ export class ChatServer {
   private async handleHighlight(ws: WebSocket, message: any): Promise<void> {
     const client = this.clients.get(ws);
     if (!client) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        error: 'Not subscribed to any stream',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          error: 'Not subscribed to any stream',
+        })
+      );
       return;
     }
 
     const { messageId, platform } = message;
 
     if (!messageId || !platform) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        error: 'messageId and platform are required',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          error: 'messageId and platform are required',
+        })
+      );
       return;
     }
 
@@ -202,16 +218,20 @@ export class ChatServer {
         platform,
       });
 
-      ws.send(JSON.stringify({
-        type: 'highlighted',
-        messageId,
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'highlighted',
+          messageId,
+        })
+      );
     } catch (error) {
       logger.error('Highlight error', error);
-      ws.send(JSON.stringify({
-        type: 'error',
-        error: 'Failed to highlight message',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          error: 'Failed to highlight message',
+        })
+      );
     }
   }
 
@@ -243,9 +263,7 @@ export class ChatServer {
           const tokens = await db.getOAuthTokens(communityId, platformStream.platform);
 
           // Get client's last message time
-          const clients = Array.from(this.clients.values()).filter(
-            (c) => c.streamId === streamId
-          );
+          const clients = Array.from(this.clients.values()).filter((c) => c.streamId === streamId);
           if (clients.length === 0) {
             continue;
           }

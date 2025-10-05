@@ -220,11 +220,7 @@ class OmnistreamDemo {
     });
   }
 
-  async streamVideoFile(
-    videoPath: string,
-    rtmpUrl: string,
-    rtmpKey: string
-  ): Promise<void> {
+  async streamVideoFile(videoPath: string, rtmpUrl: string, rtmpKey: string): Promise<void> {
     this.log('Step 4b: Streaming Video File with FFmpeg');
 
     if (!existsSync(videoPath)) {
@@ -241,18 +237,30 @@ class OmnistreamDemo {
     // FFmpeg command to stream video file to RTMP
     const args = [
       '-re', // Read input at native frame rate
-      '-i', videoPath, // Input file
-      '-c:v', 'libx264', // Video codec
-      '-preset', 'veryfast', // Encoding preset
-      '-b:v', '3000k', // Video bitrate
-      '-maxrate', '3000k',
-      '-bufsize', '6000k',
-      '-pix_fmt', 'yuv420p',
-      '-g', '60', // GOP size
-      '-c:a', 'aac', // Audio codec
-      '-b:a', '128k', // Audio bitrate
-      '-ar', '44100',
-      '-f', 'flv', // Output format
+      '-i',
+      videoPath, // Input file
+      '-c:v',
+      'libx264', // Video codec
+      '-preset',
+      'veryfast', // Encoding preset
+      '-b:v',
+      '3000k', // Video bitrate
+      '-maxrate',
+      '3000k',
+      '-bufsize',
+      '6000k',
+      '-pix_fmt',
+      'yuv420p',
+      '-g',
+      '60', // GOP size
+      '-c:a',
+      'aac', // Audio codec
+      '-b:a',
+      '128k', // Audio bitrate
+      '-ar',
+      '44100',
+      '-f',
+      'flv', // Output format
       fullRtmpUrl,
     ];
 
@@ -325,9 +333,7 @@ async function main() {
       platforms.push('youtube');
     }
 
-    const shouldSetupOAuth = await demo.prompt(
-      'Do you want to set up OAuth now? (y/n):'
-    );
+    const shouldSetupOAuth = await demo.prompt('Do you want to set up OAuth now? (y/n):');
 
     if (shouldSetupOAuth.toLowerCase() === 'y') {
       await demo.setupOAuth(platforms);
@@ -342,9 +348,7 @@ async function main() {
     const description = await demo.prompt('Enter stream description (optional):');
 
     // For demo, we'll use a test RTMP server (user can provide their own)
-    const useCustomRTMP = await demo.prompt(
-      'Do you want to use a custom RTMP source? (y/n):'
-    );
+    const useCustomRTMP = await demo.prompt('Do you want to use a custom RTMP source? (y/n):');
 
     let rtmpUrl = 'rtmp://localhost/live';
     let rtmpKey = 'demo-stream-' + Date.now();
@@ -357,9 +361,7 @@ async function main() {
     await demo.createStream(streamTitle, description, platforms, rtmpUrl, rtmpKey);
 
     // Step 4: Start Stream
-    const shouldStart = await demo.prompt(
-      'Do you want to start the stream now? (y/n):'
-    );
+    const shouldStart = await demo.prompt('Do you want to start the stream now? (y/n):');
 
     if (shouldStart.toLowerCase() === 'y') {
       await demo.startStream();
@@ -388,9 +390,7 @@ async function main() {
       }
 
       // Step 5: Stop Stream
-      const shouldStop = await demo.prompt(
-        'Do you want to stop the stream now? (y/n):'
-      );
+      const shouldStop = await demo.prompt('Do you want to stop the stream now? (y/n):');
 
       if (shouldStop.toLowerCase() === 'y') {
         await demo.stopStream();

@@ -4,12 +4,12 @@
  */
 
 import {
-  StreamProvider,
-  Platform,
-  OAuthToken,
-  StreamConfig,
-  PlatformStream,
   ChatMessage,
+  OAuthToken,
+  Platform,
+  PlatformStream,
+  StreamConfig,
+  StreamProvider,
 } from '../../core/interfaces.js';
 import { UnsupportedFeatureError } from '../../core/errors.js';
 
@@ -20,7 +20,7 @@ export class InstagramProvider implements StreamProvider {
     throw new UnsupportedFeatureError(
       'Instagram',
       'OAuth - Instagram does not provide an official live streaming API. ' +
-      'Live streaming on Instagram must be done through the mobile app.'
+        'Live streaming on Instagram must be done through the mobile app.'
     );
   }
 
@@ -46,7 +46,7 @@ export class InstagramProvider implements StreamProvider {
     throw new UnsupportedFeatureError(
       'Instagram',
       'Stream creation - Instagram does not provide an official live streaming API. ' +
-      'Live streaming must be initiated from the Instagram mobile app.'
+        'Live streaming must be initiated from the Instagram mobile app.'
     );
   }
 

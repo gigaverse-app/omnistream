@@ -6,21 +6,21 @@
  * Supported streaming platforms
  */
 export enum Platform {
-  YOUTUBE = "youtube",
-  FACEBOOK = "facebook",
-  TIKTOK = "tiktok",
-  INSTAGRAM = "instagram",
+  YOUTUBE = 'youtube',
+  FACEBOOK = 'facebook',
+  TIKTOK = 'tiktok',
+  INSTAGRAM = 'instagram',
 }
 
 /**
  * Stream status
  */
 export enum StreamStatus {
-  IDLE = "idle",
-  SCHEDULED = "scheduled",
-  LIVE = "live",
-  ENDED = "ended",
-  ERROR = "error",
+  IDLE = 'idle',
+  SCHEDULED = 'scheduled',
+  LIVE = 'live',
+  ENDED = 'ended',
+  ERROR = 'error',
 }
 
 /**
@@ -151,7 +151,7 @@ export interface StreamProvider {
   createStream(
     communityId: string,
     config: StreamConfig,
-    tokens: OAuthToken,
+    tokens: OAuthToken
   ): Promise<PlatformStream>;
 
   /**
@@ -160,10 +160,7 @@ export interface StreamProvider {
    * @param tokens - OAuth tokens for the platform
    * @returns Updated platform stream information
    */
-  startStream(
-    platformStreamId: string,
-    tokens: OAuthToken,
-  ): Promise<PlatformStream>;
+  startStream(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream>;
 
   /**
    * Stop/end a live stream
@@ -171,10 +168,7 @@ export interface StreamProvider {
    * @param tokens - OAuth tokens for the platform
    * @returns Updated platform stream information
    */
-  stopStream(
-    platformStreamId: string,
-    tokens: OAuthToken,
-  ): Promise<PlatformStream>;
+  stopStream(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream>;
 
   /**
    * Get stream status and statistics
@@ -182,10 +176,7 @@ export interface StreamProvider {
    * @param tokens - OAuth tokens for the platform
    * @returns Current stream information
    */
-  getStreamStatus(
-    platformStreamId: string,
-    tokens: OAuthToken,
-  ): Promise<PlatformStream>;
+  getStreamStatus(platformStreamId: string, tokens: OAuthToken): Promise<PlatformStream>;
 
   /**
    * Get live chat messages
@@ -197,7 +188,7 @@ export interface StreamProvider {
   getChatMessages(
     platformStreamId: string,
     tokens: OAuthToken,
-    since?: Date,
+    since?: Date
   ): Promise<ChatMessage[]>;
 
   /**
@@ -210,7 +201,7 @@ export interface StreamProvider {
   highlightMessage(
     platformStreamId: string,
     messageId: string,
-    tokens: OAuthToken,
+    tokens: OAuthToken
   ): Promise<boolean>;
 }
 
