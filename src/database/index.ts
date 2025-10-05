@@ -53,7 +53,11 @@ class Database {
     this.oauthTokens.set(key, { ...tokens, updatedAt: new Date() });
   }
 
-  async saveOAuthToken(communityId: string, platform: Platform, tokens: any): Promise<void> {
+  async saveOAuthToken(
+    communityId: string,
+    platform: Platform,
+    tokens: Record<string, unknown>
+  ): Promise<void> {
     await this.saveOAuthTokens({
       communityId,
       platform,
@@ -71,7 +75,10 @@ class Database {
     return tokens;
   }
 
-  async getOAuthToken(communityId: string, platform: Platform): Promise<any> {
+  async getOAuthToken(
+    communityId: string,
+    platform: Platform
+  ): Promise<Record<string, unknown> | null> {
     try {
       const tokenData = await this.getOAuthTokens(communityId, platform);
       return tokenData.tokens;

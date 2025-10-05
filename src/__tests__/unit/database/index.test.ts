@@ -24,7 +24,6 @@ describe('Database', () => {
       expect(retrieved.name).toBe(created.name);
     });
 
-
     it('should throw NotFoundError for invalid community ID', async () => {
       await expect(db.getCommunityById('invalid-id')).rejects.toThrow(NotFoundError);
     });

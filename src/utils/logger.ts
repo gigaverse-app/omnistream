@@ -63,11 +63,11 @@ class Logger {
         break;
       case 'debug':
         if (process.env.NODE_ENV === 'development') {
-          console.debug(JSON.stringify(logEntry));
+          console.info(JSON.stringify(logEntry));
         }
         break;
       default:
-        console.log(JSON.stringify(logEntry));
+        console.info(JSON.stringify(logEntry));
     }
   }
 

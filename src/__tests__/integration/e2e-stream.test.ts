@@ -13,7 +13,6 @@ test.describe('E2E Stream Management Flow', () => {
     request,
   }) => {
     // Step 1: Create a community
-    console.log('Step 1: Creating community...');
     const createCommunityResponse = await request.post('/api/v1/communities', {
       data: {
         name: 'E2E Test Community',
@@ -26,10 +25,7 @@ test.describe('E2E Stream Management Flow', () => {
 
     communityId = communityData.data.id;
 
-    console.log(`✓ Community created: ${communityId}`);
-
     // Step 2: Get OAuth authorization URL for YouTube
-    console.log('Step 2: Getting YouTube OAuth URL...');
     const authUrlResponse = await request.get('/api/v1/auth/youtube/authorize', {
       params: {
         communityId,
@@ -43,10 +39,7 @@ test.describe('E2E Stream Management Flow', () => {
     expect(authData.data.authUrl).toContain('scope=');
     expect(authData.data.authUrl).toContain('youtube');
 
-    console.log('✓ OAuth URL generated (user would complete OAuth in browser)');
-
     // Step 3: Create a stream (will create stream record even without OAuth completion)
-    console.log('Step 3: Creating stream configuration...');
     const createStreamResponse = await request.post('/api/v1/streams', {
       data: {
         communityId,
@@ -69,10 +62,7 @@ test.describe('E2E Stream Management Flow', () => {
 
     streamId = streamData.data.stream.id;
 
-    console.log(`✓ Stream created: ${streamId}`);
-
     // Step 4: List streams for the community
-    console.log('Step 4: Listing community streams...');
     const listStreamsResponse = await request.get('/api/v1/streams', {
       params: {
         communityId,
@@ -89,10 +79,7 @@ test.describe('E2E Stream Management Flow', () => {
     expect(createdStream).toBeDefined();
     expect(createdStream.title).toBe('E2E Integration Test Stream');
 
-    console.log(`✓ Found ${listData.data.length} stream(s)`);
-
     // Step 5: Get stream status
-    console.log('Step 5: Getting stream status...');
     const statusResponse = await request.get(`/api/v1/streams/${streamId}`, {
       params: {
         communityId,
@@ -106,12 +93,7 @@ test.describe('E2E Stream Management Flow', () => {
     expect(statusData.data.stream.id).toBe(streamId);
     expect(statusData.data.platformStreams).toBeDefined();
 
-    console.log('✓ Stream status retrieved');
-
     // Step 6: Attempt to start stream (will fail without OAuth tokens, but API should handle gracefully)
-    console.log(
-      'Step 6: Attempting to start stream (expected to fail gracefully without OAuth)...'
-    );
     const startResponse = await request.post(`/api/v1/streams/${streamId}/start`, {
       data: {
         communityId,
@@ -125,10 +107,8 @@ test.describe('E2E Stream Management Flow', () => {
 
     // Since we don't have OAuth tokens, the platform stream should have an error status
     // but the API should handle this gracefully
-    console.log('✓ Start request handled gracefully');
 
     // Step 7: Attempt to stop stream
-    console.log('Step 7: Stopping stream...');
     const stopResponse = await request.post(`/api/v1/streams/${streamId}/stop`, {
       data: {
         communityId,
@@ -139,10 +119,7 @@ test.describe('E2E Stream Management Flow', () => {
     const stopData = await stopResponse.json();
     expect(stopData.success).toBe(true);
 
-    console.log('✓ Stream stopped');
-
     // Step 8: Delete stream
-    console.log('Step 8: Deleting stream...');
     const deleteResponse = await request.delete(`/api/v1/streams/${streamId}`, {
       params: {
         communityId,
@@ -153,10 +130,7 @@ test.describe('E2E Stream Management Flow', () => {
     const deleteData = await deleteResponse.json();
     expect(deleteData.success).toBe(true);
 
-    console.log('✓ Stream deleted');
-
     // Step 9: Verify stream is deleted
-    console.log('Step 9: Verifying stream deletion...');
     const verifyDeleteResponse = await request.get(`/api/v1/streams/${streamId}`, {
       params: {
         communityId,
@@ -164,9 +138,6 @@ test.describe('E2E Stream Management Flow', () => {
     });
 
     expect(verifyDeleteResponse.status()).toBe(404);
-
-    console.log('✓ Stream deletion verified');
-    console.log('\n🎉 E2E test completed successfully!');
   });
 
   test('E2E: WebSocket chat connection', async ({ request }) => {
@@ -199,10 +170,6 @@ test.describe('E2E Stream Management Flow', () => {
     // This test verifies the stream is created and ready for WebSocket connections
     expect(testStreamId).toBeDefined();
     expect(testCommunityId).toBeDefined();
-
-    console.log('✓ Stream ready for WebSocket chat connections');
-    console.log(`  Stream ID: ${testStreamId}`);
-    console.log(`  WebSocket URL would be: ws://localhost:3000/ws/chat`);
   });
 
   test('E2E: Multi-platform stream creation', async ({ request }) => {
@@ -239,9 +206,6 @@ test.describe('E2E Stream Management Flow', () => {
 
     // Verify platform streams were created (or attempted with graceful failure)
     expect(streamData.data.platformStreams).toHaveLength(2);
-
-    console.log('✓ Multi-platform stream configuration created');
-    console.log(`  Platforms: ${streamData.data.stream.platforms.join(', ')}`);
   });
 
   test('E2E: Error handling - invalid communityId', async ({ request }) => {
@@ -259,8 +223,6 @@ test.describe('E2E Stream Management Flow', () => {
     const data = await response.json();
     expect(data.success).toBe(false);
     expect(data.error).toBeDefined();
-
-    console.log('✓ Invalid communityId properly rejected');
   });
 
   test('E2E: Error handling - missing required fields', async ({ request }) => {
@@ -285,7 +247,5 @@ test.describe('E2E Stream Management Flow', () => {
     const data = await response.json();
     expect(data.success).toBe(false);
     expect(data.error).toBeDefined();
-
-    console.log('✓ Missing required fields properly validated');
   });
 });

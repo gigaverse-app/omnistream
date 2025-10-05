@@ -125,7 +125,9 @@ describe('Streams API Routes', () => {
     });
 
     it('should return empty array when no streams exist', async () => {
-      const response = await request(app).get('/api/v1/streams').query({ communityId: community.id });
+      const response = await request(app)
+        .get('/api/v1/streams')
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -142,7 +144,9 @@ describe('Streams API Routes', () => {
         platforms: [Platform.YOUTUBE],
       });
 
-      const response = await request(app).get('/api/v1/streams').query({ communityId: community.id });
+      const response = await request(app)
+        .get('/api/v1/streams')
+        .query({ communityId: community.id });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

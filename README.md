@@ -63,12 +63,14 @@ cp .env.example .env
 The **easiest way to try Omnistream** is with our interactive web dashboard:
 
 **Terminal 1 - Start Omnistream Server:**
+
 ```bash
 npm install
 npm run dev              # Auto-compiles & watches for changes
 ```
 
 **Terminal 2 - Start Web Dashboard:**
+
 ```bash
 cd examples/web-dashboard
 npm install             # First time only
@@ -87,6 +89,7 @@ The dashboard provides a complete UI to explore all Omnistream features:
 - ✅ **Connection Status** - See which platforms are connected in real-time
 
 **Fully Tested:**
+
 - ✅ All dashboard functionality runs with main test suite (`npm test`)
 - ✅ 16+ Playwright UI tests included
 - ✅ OAuth flow validation tests
@@ -134,6 +137,7 @@ http://localhost:3000/api/v1
 ### Authentication
 
 Omnistream is designed to be run as a **private instance**. The administrator should guard access at the network level using:
+
 - Firewall rules
 - Reverse proxy with authentication (nginx, Caddy, etc.)
 - VPN

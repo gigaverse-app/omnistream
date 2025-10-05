@@ -31,7 +31,8 @@ describe('OAuthConfigValidator', () => {
 
       // Temporarily set to a codespace URL to test the warning
       Object.defineProperty(config.youtube, 'redirectUri', {
-        value: 'https://ubiquitous-space-acorn-59r6xxgxqp3v9p4-3000.app.github.dev/api/v1/auth/youtube/callback',
+        value:
+          'https://ubiquitous-space-acorn-59r6xxgxqp3v9p4-3000.app.github.dev/api/v1/auth/youtube/callback',
         writable: true,
         configurable: true,
       });
@@ -182,9 +183,7 @@ describe('OAuthConfigValidator', () => {
 
       const result = OAuthConfigValidator.validate();
 
-      const hostnameWarnings = result.warnings.filter((w) =>
-        w.includes('use different hostnames')
-      );
+      const hostnameWarnings = result.warnings.filter((w) => w.includes('use different hostnames'));
       expect(hostnameWarnings.length).toBeGreaterThan(0);
 
       Object.defineProperty(config.youtube, 'redirectUri', {

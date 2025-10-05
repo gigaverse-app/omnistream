@@ -14,7 +14,8 @@ const router = express.Router();
  */
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { communityId, title, description, scheduledStartTime, rtmpUrl, rtmpKey, platforms } = req.body;
+    const { communityId, title, description, scheduledStartTime, rtmpUrl, rtmpKey, platforms } =
+      req.body;
 
     if (!communityId || typeof communityId !== 'string') {
       throw new ValidationError('Community ID is required');

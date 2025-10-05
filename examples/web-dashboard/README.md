@@ -62,7 +62,6 @@ npm run build            # Build TypeScript first
 npm start               # Then start server
 ```
 
-
 **Step 2: Start the Web Dashboard**
 
 In a **new terminal**:

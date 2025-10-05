@@ -61,9 +61,8 @@ server.listen(config.port, () => {
   logger.info('Omnistream server started', {
     port: config.port,
     nodeEnv: config.nodeEnv,
+    websocketUrl: `ws://localhost:${config.port}/ws/chat`,
   });
-  console.log(`\n🚀 Omnistream is running on http://localhost:${config.port}`);
-  console.log(`📡 WebSocket chat: ws://localhost:${config.port}/ws/chat\n`);
 });
 
 // Graceful shutdown

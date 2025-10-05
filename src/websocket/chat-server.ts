@@ -16,6 +16,15 @@ interface ChatClient {
   lastMessageTime: Date;
 }
 
+interface WebSocketMessage {
+  type: string;
+  streamId?: string;
+  communityId?: string;
+  messageId?: string;
+  platform?: string;
+  [key: string]: unknown;
+}
+
 export class ChatServer {
   private wss: WebSocketServer;
   private clients: Map<WebSocket, ChatClient> = new Map();
@@ -68,7 +77,7 @@ export class ChatServer {
     });
   }
 
-  private async handleMessage(ws: WebSocket, message: any): Promise<void> {
+  private async handleMessage(ws: WebSocket, message: WebSocketMessage): Promise<void> {
     switch (message.type) {
       case 'subscribe':
         await this.handleSubscribe(ws, message);
@@ -89,7 +98,7 @@ export class ChatServer {
     }
   }
 
-  private async handleSubscribe(ws: WebSocket, message: any): Promise<void> {
+  private async handleSubscribe(ws: WebSocket, message: WebSocketMessage): Promise<void> {
     const { streamId, communityId } = message;
 
     if (!streamId || !communityId) {
@@ -182,7 +191,7 @@ export class ChatServer {
     logger.info('WebSocket client disconnected');
   }
 
-  private async handleHighlight(ws: WebSocket, message: any): Promise<void> {
+  private async handleHighlight(ws: WebSocket, message: WebSocketMessage): Promise<void> {
     const client = this.clients.get(ws);
     if (!client) {
       ws.send(
@@ -211,10 +220,11 @@ export class ChatServer {
       await db.updateChatMessage(client.streamId, messageId, { highlighted: true });
 
       // Try to highlight on platform
-      const provider = providerRegistry.getProvider(platform as Platform);
-      const tokens = await db.getOAuthTokens(client.communityId, platform as Platform);
+      const platformType = platform as Platform;
+      const provider = providerRegistry.getProvider(platformType);
+      const tokens = await db.getOAuthTokens(client.communityId, platformType);
       const platformStreams = await db.getPlatformStreams(client.streamId);
-      const platformStream = platformStreams.find((ps) => ps.platform === platform);
+      const platformStream = platformStreams.find((ps) => ps.platform === platformType);
 
       if (platformStream) {
         try {
@@ -321,7 +331,7 @@ export class ChatServer {
     }
   }
 
-  private broadcastToStream(streamId: string, data: any): void {
+  private broadcastToStream(streamId: string, data: Record<string, unknown>): void {
     const message = JSON.stringify(data);
 
     for (const client of this.clients.values()) {
