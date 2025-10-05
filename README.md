@@ -43,7 +43,7 @@ omnistream/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/omnistream.git
+git clone https://github.com/gigaverse-app/omnistream.git
 cd omnistream
 
 # Install dependencies
@@ -52,38 +52,75 @@ npm install
 # Copy environment template
 cp .env.example .env
 
-# Edit .env with your credentials
+# Edit .env with your credentials (optional for testing - demo credentials included)
 # See Environment Variables section below
 ```
 
 ## 🚦 Quick Start
 
+### First Time Setup
+
+**⚠️ IMPORTANT:** Omnistream uses TypeScript. You must build before running in production mode.
+
+**Option 1: Development Mode (Recommended)**
 ```bash
-# Development mode with hot reload
+npm run dev              # Auto-compiles & watches for changes
+```
+
+**Option 2: Production Mode**
+```bash
+npm run build           # Compile TypeScript → JavaScript
+npm start               # Run the compiled code
+```
+
+**Windows PowerShell:**
+```powershell
+# Development
 npm run dev
 
-# Build for production
+# Production
 npm run build
-
-# Run tests
-npm test
-
-# Run integration tests
-npm run test:integration
-
-# Run demos
-npm run demo:simple     # Automated API demo
-npm run demo            # Interactive streaming demo
+npm start
 ```
 
 The server will start on `http://localhost:3000` by default.
 
+### Running Tests & Demos
+
+```bash
+# Run tests
+npm test                        # Unit tests
+npm run test:integration        # Integration tests
+npm run test:e2e               # End-to-end tests
+
+# Run demos
+npm run demo:simple            # Automated API demo
+npm run demo                   # Interactive streaming demo
+```
+
+### Complete Setup Guide
+
+For detailed first-time setup instructions, see **[GETTING_STARTED.md](./GETTING_STARTED.md)**
+
 ### 🌐 Web Dashboard
 
-Access the browser-based admin dashboard at:
+Run the interactive browser-based dashboard:
+
+**In a new terminal:**
+```bash
+cd examples/web-dashboard
+npm install                    # First time only
+npm start                      # Start dashboard server
 ```
-http://localhost:3000/dashboard
+
+**Windows PowerShell:**
+```powershell
+cd examples\web-dashboard
+npm install
+npm start
 ```
+
+Then open: **http://localhost:4000**
 
 The dashboard provides a complete UI for:
 - Creating communities and managing API keys
@@ -91,9 +128,13 @@ The dashboard provides a complete UI for:
 - Creating and managing multi-platform streams
 - Starting/stopping streams with visual controls
 - Viewing RTMP credentials
-- Real-time chat monitoring via WebSocket
+- Real-time stream monitoring
 
-See `public/README.md` for detailed dashboard documentation.
+**Full testing included:**
+- 12 Bash API tests: `./test-dashboard.sh`
+- 16 Playwright UI tests: `npm test`
+
+See [examples/web-dashboard/README.md](./examples/web-dashboard/README.md) for complete dashboard documentation.
 
 ## 📡 API Documentation
 
@@ -358,11 +399,113 @@ npm run test:coverage
 # Run integration tests
 npm run test:integration
 
+# Run end-to-end tests
+npm run test:e2e
+
 # Watch mode
 npm run test:watch
 ```
 
-Current test coverage: 28 passing tests across providers and database layer.
+**Test Coverage:**
+- ✅ 28 API unit/integration tests
+- ✅ 12 Dashboard API tests (bash)
+- ✅ 16 Dashboard UI tests (Playwright)
+- **Total: 56 automated tests**
+
+## 🐛 Troubleshooting
+
+### Error: "Cannot find module 'dist/index.js'"
+
+**Cause:** TypeScript hasn't been compiled to JavaScript yet.
+
+**Solution:**
+```bash
+# Option 1: Build then run
+npm run build
+npm start
+
+# Option 2: Use dev mode (auto-compiles)
+npm run dev
+```
+
+### Error: "Port 3000 already in use"
+
+**Solution:**
+```bash
+# Kill the process using port 3000
+# Linux/Mac:
+lsof -ti:3000 | xargs kill -9
+
+# Windows PowerShell:
+Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process -Force
+```
+
+Or change the port in `.env`:
+```bash
+PORT=3001
+```
+
+### Error: "ECONNREFUSED" in tests
+
+**Cause:** Omnistream server not running.
+
+**Solution:**
+```bash
+# Terminal 1: Start server
+npm run dev
+
+# Terminal 2: Run tests
+npm test
+```
+
+### Dashboard shows "Failed to fetch" errors
+
+**Cause:** Main Omnistream API server not running.
+
+**Solution:**
+```bash
+# Terminal 1: Start API server
+cd /path/to/omnistream
+npm run dev
+
+# Terminal 2: Start dashboard
+cd examples/web-dashboard
+npm start
+```
+
+Verify dashboard can reach API by checking `examples/web-dashboard/.env`:
+```bash
+OMNISTREAM_API_URL=http://localhost:3000
+```
+
+### OAuth URLs don't work
+
+**Common issues:**
+1. **Redirect URI mismatch** - Update Google/Facebook console to match `.env`
+2. **Invalid credentials** - Verify `YOUTUBE_CLIENT_ID`, `FACEBOOK_APP_ID` in `.env`
+3. **Port mismatch** - Ensure callback URLs use correct port (3000)
+
+### "No OAuth tokens found" error
+
+**This is expected** until you complete OAuth flow:
+1. Get authorization URL from API
+2. Open URL in browser
+3. Complete OAuth
+4. Tokens are automatically saved
+
+See [QUICK_START.md](./QUICK_START.md) for OAuth setup guide.
+
+### Module import errors
+
+**Solution:**
+```bash
+# Clean install
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+For more help, see [GETTING_STARTED.md](./GETTING_STARTED.md)
 
 ## 🏭 Production Deployment
 

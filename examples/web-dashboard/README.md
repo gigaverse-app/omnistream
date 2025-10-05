@@ -34,35 +34,75 @@ An interactive web-based demo application showcasing Omnistream's multi-platform
 
 ### Prerequisites
 - Node.js 16+ installed
-- Omnistream server running (default: http://localhost:3000)
+- Omnistream API server must be running first
 
-### Installation
+### Installation & Running
 
-1. **Navigate to the dashboard directory:**
-   ```bash
-   cd examples/web-dashboard
-   ```
+**Step 1: Start the Omnistream API Server**
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+In your main Omnistream directory:
 
-3. **Start the Omnistream server (in another terminal):**
-   ```bash
-   cd ../..
-   npm start
-   ```
+```bash
+# Navigate to root
+cd /path/to/omnistream
 
-4. **Start the web dashboard:**
-   ```bash
-   npm start
-   ```
+# Install dependencies (first time only)
+npm install
 
-5. **Open your browser:**
-   ```
-   http://localhost:4000
-   ```
+# Option 1: Development mode (recommended)
+npm run dev              # Auto-compiles TypeScript
+
+# Option 2: Production mode
+npm run build            # Build TypeScript first
+npm start               # Then start server
+```
+
+**Windows PowerShell:**
+```powershell
+cd C:\path\to\omnistream
+npm install
+npm run dev
+```
+
+**Step 2: Start the Web Dashboard**
+
+In a **new terminal**:
+
+```bash
+# Navigate to dashboard
+cd examples/web-dashboard
+
+# Install dependencies (first time only)
+npm install
+
+# Start dashboard server
+npm start
+```
+
+**Windows PowerShell:**
+```powershell
+cd examples\web-dashboard
+npm install
+npm start
+```
+
+**Step 3: Open in Browser**
+```
+http://localhost:4000
+```
+
+### Troubleshooting
+
+**Error: "Failed to fetch" / CORS errors**
+- Ensure Omnistream API is running on http://localhost:3000
+- Check terminal 1 shows: `Server running on port 3000`
+
+**Error: Dashboard won't start**
+- Port 4000 might be in use, change `DASHBOARD_PORT` in `.env`
+- Ensure dependencies installed: `npm install`
+
+**Error: "Cannot find module dist/index.js" in main server**
+- You forgot to build! Run: `npm run build` OR use `npm run dev`
 
 ## 📖 How to Use
 

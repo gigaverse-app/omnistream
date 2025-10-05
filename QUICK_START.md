@@ -1,8 +1,38 @@
 # 🚀 Quick Start Guide - Complete OAuth & Stream
 
+## 📋 Prerequisites
+
+Before starting, ensure:
+- ✅ Node.js 16+ installed
+- ✅ Repository cloned: `git clone https://github.com/gigaverse-app/omnistream.git`
+- ✅ Dependencies installed: `npm install`
+- ✅ Server built: `npm run build` (or use `npm run dev`)
+
+**New to Omnistream?** See [GETTING_STARTED.md](./GETTING_STARTED.md) for complete setup instructions.
+
+## 🚦 Start the Server
+
+**Option 1: Development mode (recommended)**
+```bash
+npm run dev              # Auto-compiles, hot reload
+```
+
+**Option 2: Production mode**
+```bash
+npm run build           # Compile TypeScript
+npm start              # Run compiled code
+```
+
+**Windows PowerShell:**
+```powershell
+npm run dev
+```
+
+Verify it's running: http://localhost:3000/health
+
 ## ✅ What's Working Now
 
-The demo just proved that:
+Once the server is running, you have:
 - ✅ API is healthy and running
 - ✅ Communities can be created
 - ✅ OAuth URLs are generated correctly
@@ -17,6 +47,11 @@ To actually stream to YouTube and Facebook, you need to complete OAuth:
 ### Step 1: Run the Demo
 
 ```bash
+npm run demo:simple
+```
+
+**Windows PowerShell:**
+```powershell
 npm run demo:simple
 ```
 
