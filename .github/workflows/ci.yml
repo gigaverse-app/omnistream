@@ -94,16 +94,17 @@ jobs:
       - name: Run all tests (unit, integration, examples)
         run: npm run test:all
 
-      - name: Upload coverage to Codecov
-        if: github.event_name == 'push'
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      # Uncomment to enable Codecov uploads (requires CODECOV_TOKEN secret)
+      # - name: Upload coverage to Codecov
+      #   if: github.event_name == 'push'
+      #   uses: codecov/codecov-action@v4
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #   with:
+      #     files: ./coverage/lcov.info
+      #     flags: unittests
+      #     name: codecov-umbrella
+      #     fail_ci_if_error: false
 
   # Build application
   build:
