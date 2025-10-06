@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Cancel in-progress runs when a new workflow with the same group name starts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: '20.x'
 
@@ -69,6 +74,14 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps
 
+      - name: Cache web-dashboard dependencies
+        uses: actions/cache@v4
+        with:
+          path: examples/web-dashboard/node_modules
+          key: web-dashboard-${{ runner.os }}-${{ hashFiles('examples/web-dashboard/package-lock.json') }}
+          restore-keys: |
+            web-dashboard-${{ runner.os }}-
+
       - name: Install web-dashboard dependencies
         run: cd examples/web-dashboard && npm ci
 
@@ -76,6 +89,7 @@ jobs:
         run: npm run test:all
 
       - name: Upload coverage to Codecov
+        if: github.event_name == 'push'
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
@@ -87,7 +101,7 @@ jobs:
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    needs: [quality, test]
+    needs: [test]
 
     steps:
       - name: Checkout code
