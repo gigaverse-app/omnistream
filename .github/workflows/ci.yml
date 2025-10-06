@@ -97,9 +97,9 @@ jobs:
       - name: Upload coverage to Codecov
         if: github.event_name == 'push'
         uses: codecov/codecov-action@v4
-        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
