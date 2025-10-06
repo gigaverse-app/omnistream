@@ -26,12 +26,17 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     // Fill in community name
     await page.fill('#community-name', communityName);
 
+    // Wait a moment for the input to be filled
+    await page.waitForTimeout(100);
+
     // Click create button
     await page.click('button:has-text("Create Community")');
 
     // Wait for either profile section to appear OR an error message
     const profileOrError = await Promise.race([
-      page.waitForSelector('#profile-section', { state: 'visible' }).then(() => 'profile'),
+      page
+        .waitForSelector('#profile-section', { state: 'visible', timeout: 15000 })
+        .then(() => 'profile'),
       page.waitForSelector('#auth-status.error', { state: 'visible' }).then(() => 'error'),
     ]);
 
@@ -173,36 +178,36 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     await expect(page.locator('#auth-status')).toContainText(/logged out/i);
   });
 
-  test('should login with existing API key', async ({ page }) => {
+  test('should login with existing community ID', async ({ page }) => {
     // First create a community
     const testCommunityName = `Login Test ${Date.now()}`;
     await page.fill('#community-name', testCommunityName);
     await page.click('button:has-text("Create Community")');
     await page.waitForSelector('#profile-section', { state: 'visible' });
 
-    // Get the API key
-    const savedApiKey = await page.locator('#profile-apikey').textContent();
+    // Get the community ID
+    const savedCommunityId = await page.locator('#profile-id').textContent();
 
     // Logout
     await page.click('button:has-text("Logout")');
     await expect(page.locator('#auth-section')).toBeVisible();
 
-    // Login with the API key
-    await page.fill('#login-apikey', savedApiKey);
-    await page.click('text=Use Existing API Key >> .. >> button:has-text("Login")');
+    // Login with the community ID
+    await page.fill('#login-communityid', savedCommunityId);
+    await page.click('text=Use Existing Community ID >> .. >> button:has-text("Login")');
 
     // Wait for profile to load
     await page.waitForSelector('#profile-section', { state: 'visible' });
 
     // Verify we're logged in with the same community
     await expect(page.locator('#profile-name')).toContainText(testCommunityName);
-    await expect(page.locator('#profile-apikey')).toContainText(savedApiKey);
+    await expect(page.locator('#profile-id')).toContainText(savedCommunityId);
   });
 
-  test('should show error for invalid API key', async ({ page }) => {
-    // Try to login with invalid API key
-    await page.fill('#login-apikey', 'omni_invalid_key_12345');
-    await page.click('text=Use Existing API Key >> .. >> button:has-text("Login")');
+  test('should show error for invalid community ID', async ({ page }) => {
+    // Try to login with invalid community ID
+    await page.fill('#login-communityid', '00000000-0000-0000-0000-000000000000');
+    await page.click('text=Use Existing Community ID >> .. >> button:has-text("Login")');
 
     // Should show error (either "invalid" or "not found")
     await expect(page.locator('#auth-status')).toContainText(/(invalid|not found)/i);
@@ -220,9 +225,13 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     await page.click('button:has-text("Create Community")');
     await page.waitForSelector('#profile-section', { state: 'visible' });
 
-    // Get the API key from localStorage
-    const storedApiKey = await page.evaluate(() => localStorage.getItem('omnistream_api_key'));
-    expect(storedApiKey).toMatch(/^omni_/);
+    // Get the community ID from localStorage
+    const storedCommunityId = await page.evaluate(() =>
+      localStorage.getItem('omnistream_community_id')
+    );
+    expect(storedCommunityId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
 
     // Reload page
     await page.reload();
@@ -239,15 +248,17 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
     await page.waitForSelector('#profile-section', { state: 'visible' });
 
     // Verify localStorage has data
-    let storedApiKey = await page.evaluate(() => localStorage.getItem('omnistream_api_key'));
-    expect(storedApiKey).toBeTruthy();
+    let storedCommunityId = await page.evaluate(() =>
+      localStorage.getItem('omnistream_community_id')
+    );
+    expect(storedCommunityId).toBeTruthy();
 
     // Logout
     await page.click('button:has-text("Logout")');
 
     // Verify localStorage is cleared
-    storedApiKey = await page.evaluate(() => localStorage.getItem('omnistream_api_key'));
-    expect(storedApiKey).toBeNull();
+    storedCommunityId = await page.evaluate(() => localStorage.getItem('omnistream_community_id'));
+    expect(storedCommunityId).toBeNull();
   });
 
   test('should have demo information section visible', async ({ page }) => {
@@ -260,7 +271,7 @@ test.describe('Omnistream Web Dashboard E2E Tests', () => {
   test('should display all expected features in demo info', async ({ page }) => {
     const demoSection = page.locator('#demo-info');
 
-    await expect(demoSection).toContainText('User Authentication');
+    await expect(demoSection).toContainText('Community Management');
     await expect(demoSection).toContainText('OAuth Integration');
     await expect(demoSection).toContainText('Multi-Platform Streaming');
     await expect(demoSection).toContainText('Real-Time Control');
