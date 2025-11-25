@@ -188,22 +188,20 @@ POST /api/streams/start
 
 ### This is a 2-week assignment. Prioritize accordingly:
 
-**Must Have (Week 1):**
+**Must Have:**
 - User registration and login
 - Token storage for at least 2-3 platforms
-- Unified posting to connected platforms
+- Unified posting to connected platforms (that support it)
 - Basic error handling
+- Event scheduling across platforms (that support it)
+- Live streaming across platforms (that support it)
+- Basic chat send/receive across platforms
 
-**Should Have (Week 2):**
-- Additional platform support
-- Event scheduling
-- Live streaming initiation
-- Basic chat aggregation
-
-**Nice to Have (If time permits):**
+**Nice to Have:**
 - Full chat integration with send/receive
 - Polished UI
 - Comprehensive error handling
+- Additional platform support
 
 
 ### Acceptable Shortcuts
