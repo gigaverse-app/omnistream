@@ -32,6 +32,7 @@ OmniStream is a TypeScript/Node.js middleware that provides RESTful APIs for mul
 **Repository:** https://github.com/gigaverse-app/omnistream
 
 The library is approximately **70% complete**. You are expected to extend, modify, and improve it as needed.
+The desired output is a working fork of omnistream library, with a demo app that demonstrates the use of it.
 
 ---
 
@@ -203,14 +204,12 @@ POST /api/streams/start
 - Full chat integration with send/receive
 - Polished UI
 - Comprehensive error handling
-- Unit tests
+
 
 ### Acceptable Shortcuts
 
-- **Mock/Stub unavailable APIs** - If a platform doesn't provide API access, stub it with clear documentation
-- **Use test/sandbox modes** - You don't need production API access
-- **Skip complex OAuth flows** - Manual token entry is acceptable for the demo
 - **Focus on happy path** - Basic error handling is sufficient
+- Unit and integration tests
 
 ---
 
